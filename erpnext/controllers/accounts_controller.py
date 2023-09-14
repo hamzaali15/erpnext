@@ -1923,7 +1923,7 @@ def validate_conversion_rate(currency, conversion_rate, conversion_rate_label, c
 	if not conversion_rate:
 		throw(
 			_("{0} is mandatory. Maybe Currency Exchange record is not created for {1} to {2}.").format(
-				conversion_rate_label, currency, company_currency
+				conversion_rate_label, company, company_currency
 			)
 		)
 

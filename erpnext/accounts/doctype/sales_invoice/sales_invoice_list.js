@@ -4,7 +4,7 @@
 // render
 frappe.listview_settings['Sales Invoice'] = {
 	add_fields: ["customer", "customer_name", "base_grand_total", "outstanding_amount", "due_date", "company",
-		"currency", "is_return"],
+		"currency", "is_return","po_no"],
 	get_indicator: function(doc) {
 		const status_colors = {
 			"Draft": "grey",
@@ -28,8 +28,8 @@ frappe.listview_settings['Sales Invoice'] = {
 			erpnext.bulk_transaction_processing.create(listview, "Sales Invoice", "Delivery Note");
 		});
 
-		listview.page.add_action_item(__("Payment"), ()=>{
-			erpnext.bulk_transaction_processing.create(listview, "Sales Invoice", "Payment");
-		});
+	//	listview.page.add_action_item(__("Payment Entry"), ()=>{
+	//		erpnext.bulk_transaction_processing.create(listview, "Sales Invoice", "Payment Entry");
+	//	});
 	}
 };

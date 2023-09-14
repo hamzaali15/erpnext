@@ -175,6 +175,7 @@
    "label": "Description",
    "oldfieldname": "description",
    "oldfieldtype": "Small Text",
+   "print_hide": 1,
    "print_width": "300px",
    "reqd": 1,
    "width": "300px"
@@ -313,7 +314,9 @@
    "label": "Rate",
    "oldfieldname": "import_rate",
    "oldfieldtype": "Currency",
-   "options": "currency"
+   "options": "currency",
+   "print_hide": 1,
+   "print_hide_if_no_value": 1
   },
   {
    "columns": 2,
@@ -331,12 +334,14 @@
    "fieldtype": "Column Break"
   },
   {
+   "depends_on": "\r\n\r\n",
    "fieldname": "base_rate",
    "fieldtype": "Currency",
    "label": "Rate (Company Currency)",
    "oldfieldname": "purchase_rate",
    "oldfieldtype": "Currency",
    "options": "Company:company:default_currency",
+   "permlevel": 9,
    "print_hide": 1,
    "print_width": "100px",
    "read_only": 1,
@@ -419,6 +424,7 @@
    "fieldname": "weight_per_unit",
    "fieldtype": "Float",
    "label": "Weight Per Unit",
+   "print_hide": 1,
    "read_only": 1
   },
   {
@@ -754,6 +760,7 @@
    "label": "Rate of Stock UOM",
    "no_copy": 1,
    "options": "currency",
+   "print_hide": 1,
    "read_only": 1
   },
   {
@@ -874,7 +881,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-06-17 05:29:40.602349",
+ "modified": "2023-02-20 11:27:21.661152",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order Item",

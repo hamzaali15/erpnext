@@ -192,7 +192,10 @@
   "column_break_140",
   "auto_repeat",
   "update_auto_repeat_reference",
-  "against_income_account"
+  "against_income_account",
+  "mode_of_payment",
+  "delivery_driver",
+  "data_190"
  ],
  "fields": [
   {
@@ -331,6 +334,7 @@
    "reqd": 1
   },
   {
+   "default": "101 - baahy - b",
    "fieldname": "cost_center",
    "fieldtype": "Link",
    "hide_days": 1,
@@ -434,6 +438,7 @@
    "fieldtype": "Data",
    "hide_days": 1,
    "hide_seconds": 1,
+   "in_list_view": 1,
    "label": "Customer's Purchase Order",
    "no_copy": 1,
    "print_hide": 1
@@ -1963,6 +1968,7 @@
    "label": "Disable Rounded Total"
   },
   {
+   "default": "5280 - Discount on Sales - b",
    "fieldname": "additional_discount_account",
    "fieldtype": "Link",
    "label": "Discount Account",
@@ -2010,6 +2016,23 @@
    "fieldname": "is_cash_or_non_trade_discount",
    "fieldtype": "Check",
    "label": "Is Cash or Non Trade Discount"
+  },
+  {
+   "fieldname": "mode_of_payment",
+   "fieldtype": "Link",
+   "label": " Payment method",
+   "options": "Mode of Payment"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "delivery_driver",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Delivery driver"
+  },
+  {
+   "fieldname": "data_190",
+   "fieldtype": "Data"
   }
  ],
  "icon": "fa fa-file-text",
@@ -2022,7 +2045,7 @@
    "link_fieldname": "consolidated_invoice"
   }
  ],
- "modified": "2022-07-11 17:43:56.435382",
+ "modified": "2023-08-08 13:22:35.058201",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Sales Invoice",
@@ -2075,7 +2098,7 @@
  "sort_order": "DESC",
  "states": [],
  "timeline_field": "customer",
- "title_field": "title",
+ "title_field": "po_no",
  "track_changes": 1,
  "track_seen": 1
 }

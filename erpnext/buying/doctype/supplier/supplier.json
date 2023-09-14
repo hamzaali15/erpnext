@@ -13,6 +13,7 @@
   "basic_info",
   "naming_series",
   "supplier_name",
+  "supplier_code",
   "country",
   "default_bank_account",
   "tax_id",
@@ -63,7 +64,8 @@
   "supplier_details",
   "column_break_30",
   "language",
-  "is_frozen"
+  "is_frozen",
+  "id_woo"
  ],
  "fields": [
   {
@@ -420,6 +422,16 @@
    "fieldtype": "Link",
    "label": "Supplier Primary Address",
    "options": "Address"
+  },
+  {
+   "fieldname": "supplier_code",
+   "fieldtype": "Data",
+   "label": "Supplier Code"
+  },
+  {
+   "fieldname": "id_woo",
+   "fieldtype": "Data",
+   "label": "Woocommerce ID"
   }
  ],
  "icon": "fa fa-user",
@@ -432,7 +444,7 @@
    "link_fieldname": "party"
   }
  ],
- "modified": "2022-04-16 18:02:27.838623",
+ "modified": "2022-10-13 15:35:37.573171",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Supplier",

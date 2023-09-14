@@ -13,6 +13,7 @@
   "payment_order_status",
   "column_break_5",
   "posting_date",
+  "vanex_reference",
   "company",
   "mode_of_payment",
   "party_section",
@@ -94,7 +95,12 @@
   "subscription_section",
   "auto_repeat",
   "amended_from",
-  "title"
+  "title",
+  "po_no",
+  "woocommerce_id",
+  "data_92",
+  "data_93",
+  "data_94"
  ],
  "fields": [
   {
@@ -134,6 +140,8 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Posting Date",
+   "print_hide": 1,
+   "report_hide": 1,
    "reqd": 1
   },
   {
@@ -189,7 +197,9 @@
    "fieldname": "party_name",
    "fieldtype": "Data",
    "in_global_search": 1,
-   "label": "Party Name"
+   "label": "Party Name",
+   "print_hide": 1,
+   "report_hide": 1
   },
   {
    "fieldname": "column_break_11",
@@ -233,6 +243,7 @@
    "label": "Account Paid From",
    "options": "Account",
    "print_hide": 1,
+   "report_hide": 1,
    "reqd": 1
   },
   {
@@ -243,6 +254,7 @@
    "options": "Currency",
    "print_hide": 1,
    "read_only": 1,
+   "report_hide": 1,
    "reqd": 1
   },
   {
@@ -306,6 +318,7 @@
    "fieldtype": "Float",
    "label": "Exchange Rate",
    "print_hide": 1,
+   "report_hide": 1,
    "reqd": 1
   },
   {
@@ -315,6 +328,7 @@
    "options": "Company:company:default_currency",
    "print_hide": 1,
    "read_only": 1,
+   "report_hide": 1,
    "reqd": 1
   },
   {
@@ -335,6 +349,7 @@
    "fieldtype": "Float",
    "label": "Exchange Rate",
    "print_hide": 1,
+   "report_hide": 1,
    "reqd": 1
   },
   {
@@ -377,7 +392,8 @@
    "fieldtype": "Currency",
    "label": "Total Allocated Amount",
    "print_hide": 1,
-   "read_only": 1
+   "read_only": 1,
+   "report_hide": 1
   },
   {
    "fieldname": "base_total_allocated_amount",
@@ -385,12 +401,16 @@
    "label": "Total Allocated Amount (Company Currency)",
    "options": "Company:company:default_currency",
    "print_hide": 1,
-   "read_only": 1
+   "read_only": 1,
+   "report_hide": 1
   },
   {
    "fieldname": "set_exchange_gain_loss",
    "fieldtype": "Button",
-   "label": "Set Exchange Gain / Loss"
+   "hidden": 1,
+   "label": "Set Exchange Gain / Loss",
+   "print_hide": 1,
+   "report_hide": 1
   },
   {
    "fieldname": "column_break_36",
@@ -411,7 +431,8 @@
    "label": "Difference Amount (Company Currency)",
    "options": "Company:company:default_currency",
    "print_hide": 1,
-   "read_only": 1
+   "read_only": 1,
+   "report_hide": 1
   },
   {
    "depends_on": "difference_amount",
@@ -457,6 +478,8 @@
    "fieldtype": "Date",
    "label": "Cheque/Reference Date",
    "mandatory_depends_on": "eval:(doc.paid_from_account_type == 'Bank' || doc.paid_to_account_type == 'Bank')",
+   "print_hide": 1,
+   "report_hide": 1,
    "search_index": 1
   },
   {
@@ -487,7 +510,9 @@
    "fieldtype": "Small Text",
    "label": "Remarks",
    "no_copy": 1,
-   "read_only_depends_on": "eval:doc.custom_remarks == 0"
+   "print_hide": 1,
+   "read_only_depends_on": "eval:doc.custom_remarks == 0",
+   "report_hide": 1
   },
   {
    "fieldname": "column_break_16",
@@ -580,7 +605,9 @@
    "hidden": 1,
    "label": "Payment Order Status",
    "options": "Initiated\nPayment Ordered",
-   "read_only": 1
+   "print_hide": 1,
+   "read_only": 1,
+   "report_hide": 1
   },
   {
    "collapsible": 1,
@@ -653,13 +680,17 @@
    "fieldtype": "Currency",
    "label": "Total Taxes and Charges (Company Currency)",
    "options": "Company:company:default_currency",
-   "read_only": 1
+   "print_hide": 1,
+   "read_only": 1,
+   "report_hide": 1
   },
   {
    "fieldname": "total_taxes_and_charges",
    "fieldtype": "Currency",
    "label": "Total Taxes and Charges",
-   "read_only": 1
+   "print_hide": 1,
+   "read_only": 1,
+   "report_hide": 1
   },
   {
    "fieldname": "paid_amount_after_tax",
@@ -667,15 +698,18 @@
    "hidden": 1,
    "label": "Paid Amount After Tax",
    "options": "paid_from_account_currency",
-   "read_only": 1
+   "print_hide": 1,
+   "read_only": 1,
+   "report_hide": 1
   },
   {
    "fieldname": "base_paid_amount_after_tax",
    "fieldtype": "Currency",
-   "hidden": 1,
    "label": "Paid Amount After Tax (Company Currency)",
    "options": "Company:company:default_currency",
-   "read_only": 1
+   "print_hide": 1,
+   "read_only": 1,
+   "report_hide": 1
   },
   {
    "fieldname": "column_break_55",
@@ -693,7 +727,9 @@
    "hidden": 1,
    "label": "Received Amount After Tax",
    "options": "paid_to_account_currency",
-   "read_only": 1
+   "print_hide": 1,
+   "read_only": 1,
+   "report_hide": 1
   },
   {
    "depends_on": "doc.received_amount",
@@ -702,21 +738,27 @@
    "hidden": 1,
    "label": "Received Amount After Tax (Company Currency)",
    "options": "Company:company:default_currency",
-   "read_only": 1
+   "print_hide": 1,
+   "read_only": 1,
+   "report_hide": 1
   },
   {
    "fetch_from": "paid_from.account_type",
    "fieldname": "paid_from_account_type",
    "fieldtype": "Data",
    "hidden": 1,
-   "label": "Paid From Account Type"
+   "label": "Paid From Account Type",
+   "print_hide": 1,
+   "report_hide": 1
   },
   {
    "fetch_from": "paid_to.account_type",
    "fieldname": "paid_to_account_type",
    "fieldtype": "Data",
    "hidden": 1,
-   "label": "Paid To Account Type"
+   "label": "Paid To Account Type",
+   "print_hide": 1,
+   "report_hide": 1
   },
   {
    "fieldname": "column_break_61",
@@ -726,12 +768,44 @@
    "fieldname": "section_break_60",
    "fieldtype": "Section Break",
    "hide_border": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "po_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Customer's Purchase Order "
+  },
+  {
+   "fieldname": "woocommerce_id",
+   "fieldtype": "Data",
+   "label": "Woocommerce ID"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "vanex_reference",
+   "fieldtype": "Data",
+   "label": "Vanex Reference"
+  },
+  {
+   "fieldname": "data_92",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "data_93",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "data_94",
+   "fieldtype": "Data"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-02-23 20:08:39.559814",
+ "modified": "2023-09-06 14:20:53.408345",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Entry",

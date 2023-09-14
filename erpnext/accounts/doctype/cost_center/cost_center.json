@@ -18,7 +18,8 @@
   "disabled",
   "lft",
   "rgt",
-  "old_parent"
+  "old_parent",
+  "woocommerce_id"
  ],
  "fields": [
   {
@@ -119,13 +120,18 @@
    "fieldname": "disabled",
    "fieldtype": "Check",
    "label": "Disabled"
+  },
+  {
+   "fieldname": "woocommerce_id",
+   "fieldtype": "Data",
+   "label": "woocommerce id"
   }
  ],
  "icon": "fa fa-money",
  "idx": 1,
  "is_tree": 1,
  "links": [],
- "modified": "2022-01-31 13:22:58.916273",
+ "modified": "2022-11-17 15:44:35.166768",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Cost Center",

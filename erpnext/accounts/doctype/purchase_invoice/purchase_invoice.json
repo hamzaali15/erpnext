@@ -10,6 +10,7 @@
   "title",
   "naming_series",
   "supplier",
+  "s_code",
   "supplier_name",
   "tax_id",
   "due_date",
@@ -170,7 +171,10 @@
   "auto_repeat",
   "update_auto_repeat_reference",
   "per_received",
-  "is_old_subcontracting_flow"
+  "is_old_subcontracting_flow",
+  "order_status",
+  "data_167",
+  "data_168"
  ],
  "fields": [
   {
@@ -1367,7 +1371,7 @@
    "width": "50px"
   },
   {
-    "depends_on": "eval:doc.is_subcontracted",
+   "depends_on": "eval:doc.is_subcontracted",
    "fieldname": "supplier_warehouse",
    "fieldtype": "Link",
    "label": "Supplier Warehouse",
@@ -1426,13 +1430,36 @@
    "hidden": 1,
    "label": "Is Old Subcontracting Flow",
    "read_only": 1
-   }
+  },
+  {
+   "fieldname": "s_code",
+   "fieldtype": "Data",
+   "label": "Order #"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "order_status",
+   "fieldtype": "Select",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Order Status",
+   "options": "pending\npaid\nconfirmed-local\ncancelled\nrefunded\nout_for_delivery\nvanex\ndelivered\nfulfilled_order\ninterfulfilled\nreturn_to_stock\nitem_out_of_stock\nuser_returnd\nconfirmed\nint-conf\nwc-processing\nerror\ncompleted\nprocessing_new"
+  },
+  {
+   "fieldname": "data_167",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "data_168",
+   "fieldtype": "Data"
+  }
  ],
  "icon": "fa fa-file-text",
  "idx": 204,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-06-15 15:40:58.527065",
+ "modified": "2023-07-09 09:08:58.369309",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Purchase Invoice",
@@ -1492,6 +1519,7 @@
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "timeline_field": "supplier",
  "title_field": "title",
  "track_changes": 1

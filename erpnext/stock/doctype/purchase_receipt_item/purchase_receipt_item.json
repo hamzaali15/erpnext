@@ -128,20 +128,21 @@
    "fieldtype": "Section Break"
   },
   {
+   "allow_in_quick_entry": 1,
    "bold": 1,
-   "columns": 3,
+   "columns": 2,
    "fieldname": "item_code",
    "fieldtype": "Link",
    "in_global_search": 1,
    "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Item Code",
    "oldfieldname": "item_code",
    "oldfieldtype": "Link",
    "options": "Item",
-   "print_width": "100px",
    "reqd": 1,
-   "search_index": 1,
-   "width": "100px"
+   "search_index": 1
   },
   {
    "fieldname": "supplier_part_no",
@@ -176,7 +177,8 @@
    "label": "Description",
    "oldfieldname": "description",
    "oldfieldtype": "Text",
-   "print_width": "300px",
+   "print_hide": 1,
+   "print_width": "0px",
    "reqd": 1,
    "width": "300px"
   },
@@ -184,7 +186,8 @@
    "fieldname": "image",
    "fieldtype": "Attach",
    "hidden": 1,
-   "label": "Image"
+   "label": "Image",
+   "print_hide": 1
   },
   {
    "fieldname": "image_view",
@@ -316,7 +319,8 @@
    "fieldname": "discount_amount",
    "fieldtype": "Currency",
    "label": "Discount Amount",
-   "options": "currency"
+   "options": "currency",
+   "print_hide": 1
   },
   {
    "fieldname": "col_break3",
@@ -344,6 +348,7 @@
    "oldfieldname": "import_rate",
    "oldfieldtype": "Currency",
    "options": "currency",
+   "permlevel": 9,
    "print_width": "100px",
    "width": "100px"
   },
@@ -355,6 +360,7 @@
    "oldfieldname": "import_amount",
    "oldfieldtype": "Currency",
    "options": "currency",
+   "permlevel": 9,
    "read_only": 1
   },
   {
@@ -362,12 +368,14 @@
    "fieldtype": "Column Break"
   },
   {
+   "depends_on": "eval(frappe.user.has_role('Accounts User'));\r\n",
    "fieldname": "base_rate",
    "fieldtype": "Currency",
    "label": "Rate (Company Currency)",
    "oldfieldname": "purchase_rate",
    "oldfieldtype": "Currency",
    "options": "Company:company:default_currency",
+   "permlevel": 9,
    "print_hide": 1,
    "print_width": "100px",
    "read_only": 1,
@@ -377,10 +385,12 @@
   {
    "fieldname": "base_amount",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Amount (Company Currency)",
    "oldfieldname": "amount",
    "oldfieldtype": "Currency",
    "options": "Company:company:default_currency",
+   "permlevel": 9,
    "print_hide": 1,
    "print_width": "100px",
    "read_only": 1,
@@ -411,6 +421,7 @@
    "fieldtype": "Currency",
    "label": "Net Rate",
    "options": "currency",
+   "permlevel": 9,
    "print_hide": 1,
    "read_only": 1
   },
@@ -421,6 +432,7 @@
    "in_list_view": 1,
    "label": "Net Amount",
    "options": "currency",
+   "permlevel": 9,
    "print_hide": 1,
    "read_only": 1
   },
@@ -433,6 +445,7 @@
    "fieldtype": "Currency",
    "label": "Net Rate (Company Currency)",
    "options": "Company:company:default_currency",
+   "permlevel": 9,
    "print_hide": 1,
    "read_only": 1
   },
@@ -441,6 +454,7 @@
    "fieldtype": "Currency",
    "label": "Net Amount (Company Currency)",
    "options": "Company:company:default_currency",
+   "permlevel": 9,
    "print_hide": 1,
    "read_only": 1
   },
@@ -670,6 +684,7 @@
    "label": "Billed Amt",
    "no_copy": 1,
    "options": "currency",
+   "permlevel": 9,
    "print_hide": 1,
    "read_only": 1
   },
@@ -906,6 +921,7 @@
    "label": "Rate of Stock UOM",
    "no_copy": 1,
    "options": "currency",
+   "print_hide": 1,
    "read_only": 1
   },
   {
@@ -955,7 +971,8 @@
    "fieldname": "base_rate_with_margin",
    "fieldtype": "Currency",
    "label": "Rate With Margin (Company Currency)",
-   "options": "Company:company:default_currency"
+   "options": "Company:company:default_currency",
+   "print_hide": 1
   },
   {
    "fieldname": "purchase_invoice",
@@ -999,7 +1016,7 @@
  "idx": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-07-28 19:27:54.880781",
+ "modified": "2023-03-06 17:52:47.048818",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Purchase Receipt Item",

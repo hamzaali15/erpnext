@@ -172,7 +172,7 @@
    "type": "Link"
   }
  ],
- "modified": "2022-06-28 12:31:30.167740",
+ "modified": "2022-12-08 17:48:59.580089",
  "modified_by": "Administrator",
  "module": "Projects",
  "name": "Projects",
@@ -181,8 +181,12 @@
  "public": 1,
  "quick_lists": [],
  "restrict_to_domain": "",
- "roles": [],
- "sequence_id": 20.0,
+ "roles": [
+  {
+   "role": "Administrator"
+  }
+ ],
+ "sequence_id": 8.0,
  "shortcuts": [
   {
    "color": "Blue",

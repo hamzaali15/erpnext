@@ -4,7 +4,7 @@
 import copy
 import json
 from typing import Dict, List, Optional
-
+import requests
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -20,7 +20,7 @@ from frappe.utils import (
 	strip,
 	strip_html,
 )
-from frappe.utils.html_utils import clean_html
+from frappe.utils.html_utils import clean_html                                                  
 
 import erpnext
 from erpnext.controllers.item_variant import (
@@ -36,7 +36,7 @@ from erpnext.stock.doctype.item_default.item_default import ItemDefault
 
 class DuplicateReorderRows(frappe.ValidationError):
 	pass
-
+     
 
 class StockExistsForTemplate(frappe.ValidationError):
 	pass
@@ -71,7 +71,6 @@ class Item(Document):
 		self.name = self.item_code
 
 	def after_insert(self):
-		"""set opening stock and item price"""
 		if self.standard_rate:
 			for default in self.item_defaults or [frappe._dict()]:
 				self.add_price(default.default_price_list)
@@ -644,7 +643,7 @@ class Item(Document):
 		validate_item_default_company_links(self.item_defaults)
 
 	def update_defaults_from_item_group(self):
-		"""Get defaults from Item Group"""
+		"""Get defaults 	tem Group"""
 		if self.item_defaults or not self.item_group:
 			return
 

@@ -1262,8 +1262,19 @@ def get_valuation_rate(
 
 	# If negative stock allowed, and item delivered without any incoming entry,
 	# system does not found any SLE, then take valuation rate from Item
+	# If negative stock allowed, and item delivered without any incoming entry,
+	# system does not found any SLE, then take valuation rate from Item
 	valuation_rate = frappe.db.get_value("Item", item_code, "valuation_rate")
-
+	if not valuation_rate or valuation_rate == 0.0 :
+		variant_rate = frappe.db.get_value("Item", item_code, "variant_of")
+		if variant_rate is not  None and variant_rate != '': 
+			main_item = frappe.get_doc("Item", variant_rate )
+			valuation_rate = frappe.db.get_value("Item", main_item.item_code, "valuation_rate")
+			if not valuation_rate  or valuation_rate == 0.0:
+			    valuation_rate =frappe.db.get_value("Item", main_item.item_code, "cost")
+		else:
+		    if not valuation_rate  or valuation_rate == 0.0:
+		        valuation_rate = frappe.db.get_value("Item", item_code, "cost")
 	if not valuation_rate:
 		# try Item Standard rate
 		valuation_rate = frappe.db.get_value("Item", item_code, "standard_rate")

@@ -227,8 +227,8 @@ def get_item_code(barcode=None, serial_no=None):
 
 
 def validate_item_details(args, item):
-	if not args.company:
-		throw(_("Please specify Company"))
+	#if not args.company:
+	#	throw(args.company)
 
 	from erpnext.stock.doctype.item.item import validate_end_of_life
 

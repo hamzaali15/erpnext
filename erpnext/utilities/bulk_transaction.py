@@ -107,7 +107,10 @@ def task(doc_name, from_doctype, to_doctype):
 
 	obj.flags.ignore_validate = True
 	obj.insert(ignore_mandatory=True)
-
+	#debug rawan :)
+	
+	obj.submit()
+	
 
 def check_logger_doc_exists(log_date):
 	return frappe.db.exists("Bulk Transaction Log", log_date)

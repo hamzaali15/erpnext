@@ -1,7 +1,7 @@
 {
  "charts": [],
  "content": "[{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"BOM\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Production Plan\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Work Order\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Job Card\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Forecasting\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"BOM Stock Report\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Production Planning Report\",\"col\":3}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Masters</b></span>\",\"col\":12}},{\"type\":\"card\",\"data\":{\"card_name\":\"Production\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Bill of Materials\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Tools\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Settings\",\"col\":4}}]",
- "creation": "2020-03-02 17:11:37.032604",
+ "creation": "2022-10-27 14:33:58.200593",
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
@@ -15,6 +15,7 @@
    "is_query_report": 0,
    "label": "Production",
    "link_count": 0,
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
   },
@@ -78,6 +79,7 @@
    "is_query_report": 0,
    "label": "Bill of Materials",
    "link_count": 0,
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
   },
@@ -240,6 +242,7 @@
    "is_query_report": 0,
    "label": "Tools",
    "link_count": 0,
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
   },
@@ -270,6 +273,7 @@
    "is_query_report": 0,
    "label": "Settings",
    "link_count": 0,
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
   },
@@ -289,6 +293,7 @@
    "is_query_report": 0,
    "label": "Reports",
    "link_count": 10,
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
   },
@@ -402,17 +407,21 @@
    "type": "Link"
   }
  ],
- "modified": "2022-06-15 15:18:57.062935",
+ "modified": "2022-12-08 17:49:00.500159",
  "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "Manufacturing",
  "owner": "Administrator",
- "parent_page": "",
+ "parent_page": "Quality",
  "public": 1,
  "quick_lists": [],
  "restrict_to_domain": "",
- "roles": [],
- "sequence_id": 17.0,
+ "roles": [
+  {
+   "role": "Administrator"
+  }
+ ],
+ "sequence_id": 19.0,
  "shortcuts": [
   {
    "color": "Grey",
@@ -447,16 +456,19 @@
    "type": "DocType"
   },
   {
+   "doc_view": "",
    "label": "Forecasting",
    "link_to": "Exponential Smoothing Forecasting",
    "type": "Report"
   },
   {
+   "doc_view": "",
    "label": "BOM Stock Report",
    "link_to": "BOM Stock Report",
    "type": "Report"
   },
   {
+   "doc_view": "",
    "label": "Production Planning Report",
    "link_to": "Production Planning Report",
    "type": "Report"
