@@ -312,6 +312,8 @@ doc_events = {
 		"on_update": "erpnext.e_commerce.doctype.e_commerce_settings.e_commerce_settings.validate_cart_settings"
 	},
 	"Sales Invoice": {
+		"before_validate": "erpnext.accounts.doctype.sales_invoice.sales_invoice.remove_shipping_charges",
+		"validate": "erpnext.accounts.doctype.sales_invoice.sales_invoice.remove_shipping_charges",
 		"on_submit": [
 			"erpnext.regional.create_transaction_log",
 			"erpnext.regional.italy.utils.sales_invoice_on_submit",

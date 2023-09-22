@@ -1250,6 +1250,16 @@ def get_outstanding_reference_documents(args):
 
 	outstanding_invoices = split_invoices_based_on_payment_terms(outstanding_invoices)
 
+	filtered_outstanding_invoices = []
+	for d in outstanding_invoices:
+		if d.get('voucher_type') == "Purchase Invoice":
+			pi = frappe.get_doc("Purchase Invoice", d.get('voucher_no'))
+			if pi.order_status == "delivered":
+				filtered_outstanding_invoices.append(d)
+
+	if len(filtered_outstanding_invoices):
+		outstanding_invoices = filtered_outstanding_invoices
+
 	for d in outstanding_invoices:
 		d["exchange_rate"] = 1
 		if party_account_currency != company_currency:
