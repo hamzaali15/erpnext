@@ -311,6 +311,10 @@ doc_events = {
 	"Sales Taxes and Charges Template": {
 		"on_update": "erpnext.e_commerce.doctype.e_commerce_settings.e_commerce_settings.validate_cart_settings"
 	},
+	"Delivery Note": {
+		"on_submit": "erpnext.selling.doctype.sales_order.sales_order.make_purchase_invoice",
+		"on_cancel": "erpnext.selling.doctype.sales_order.sales_order.cancel_purchase_invoice"
+	},
 	"Sales Invoice": {
 		"before_validate": "erpnext.accounts.doctype.sales_invoice.sales_invoice.remove_shipping_charges",
 		"validate": "erpnext.accounts.doctype.sales_invoice.sales_invoice.remove_shipping_charges",
