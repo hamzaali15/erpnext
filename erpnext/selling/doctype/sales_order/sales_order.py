@@ -1301,52 +1301,59 @@ def update_produced_qty_in_so_item(sales_order, sales_order_item):
 	frappe.db.set_value("Sales Order Item", sales_order_item, "produced_qty", total_produced_qty)
 
 
-def make_purchase_invoice(self, method):
+def make_purchase_invoice():
 	pi_dict = []
+	invoices_list = frappe.db.get_list("Sales Invoice", {"docstatus": 1, "status": ("in", ["Submitted", "Unpaid", "Overdue"])}, "name")
 
-	if not frappe.db.exists("Purchase Invoice", {"docstatus": 1, "custom_delivery_note": self.name}):
-		for itm in self.items:
-			suppliers_list = frappe.get_all("Suppliers Detail", {"disabled": 0}, pluck="supplier")
-			item = frappe.get_doc("Item", itm.item_code)
+	for invoice in invoices_list:
+		try:
+			invoice_doc = frappe.get_doc("Sales Invoice", invoice.name)
+			if not frappe.db.exists("Purchase Invoice", {"docstatus": 1, "custom_sales_invoice": invoice_doc.name}):
+				for itm in invoice_doc.items:
+					suppliers_list = frappe.get_all("Suppliers Detail", {"disabled": 0}, pluck="supplier")
+					item = frappe.get_doc("Item", itm.item_code)
 
-			if item.supplier_woo and item.supplier_woo in suppliers_list:
-				# Find the index of the supplier in pi_dict
-				supplier_index = next((i for i, d in enumerate(pi_dict) if item.supplier_woo in d), None)
+					if item.supplier_woo and item.supplier_woo in suppliers_list:
+						# Find the index of the supplier in pi_dict
+						supplier_index = next((i for i, d in enumerate(pi_dict) if item.supplier_woo in d), None)
 
-				if supplier_index is not None:
-					# Supplier already exists in pi_dict, append the item to its list
-					pi_dict[supplier_index][item.supplier_woo].append(item.item_code)
-				else:
-					# Supplier doesn't exist in pi_dict, create a new entry
-					pi_dict.append({item.supplier_woo: [item.item_code]})
-			else:
-				# Handle the case when item.supplier_woo is not in suppliers_list
-				pass  # You can add your handling logic here
-		for row in pi_dict:
-			supplier = list(row.keys())[0]  # Convert dict_keys to list and get the first (only) element
-			new_doc = frappe.new_doc("Purchase Invoice")
-			new_doc.supplier = supplier
-			new_doc.s_code = self.po_no
-			new_doc.custom_delivery_note = self.name
-			for d in list(row.values())[0]:
-				pr_detail = frappe.db.sql("""select pr.name as purchase_receipt, pr.posting_date, pri.purchase_order, poi.rate
-					from `tabPurchase Receipt` as pr
-					inner join `tabPurchase Receipt Item` as pri on pr.name=pri.parent
-					inner join `tabPurchase Order Item` as poi on poi.parent=pri.purchase_order and poi.item_code=pri.item_code
-					where pr.docstatus=1 and pr.status='To Bill' and is_return=0 and pri.item_code='{0}' and pr.supplier='{1}' limit 1""".format(d, supplier), as_dict=True)
-				new_doc.append("items", {
-					"item_code": d,
-					"rate": pr_detail[0].rate if pr_detail else None,
-					"purchase_order": pr_detail[0].purchase_order if pr_detail else None,
-					"purchase_receipt": pr_detail[0].purchase_receipt if pr_detail else None
-				})
+						if supplier_index is not None:
+							# Supplier already exists in pi_dict, append the item to its list
+							pi_dict[supplier_index][item.supplier_woo].append(item.item_code)
+						else:
+							# Supplier doesn't exist in pi_dict, create a new entry
+							pi_dict.append({item.supplier_woo: [item.item_code]})
+					else:
+						# Handle the case when item.supplier_woo is not in suppliers_list
+						pass  # You can add your handling logic here
+				for row in pi_dict:
+					supplier = list(row.keys())[0]  # Convert dict_keys to list and get the first (only) element
+					new_doc = frappe.new_doc("Purchase Invoice")
+					new_doc.supplier = supplier
+					new_doc.s_code = invoice_doc.po_no
+					new_doc.custom_sales_invoice = invoice_doc.name
+					new_doc.order_status = "delivered"
+					for d in list(row.values())[0]:
+						pr_detail = frappe.db.sql("""select pr.name as purchase_receipt, pr.posting_date, pri.purchase_order, poi.rate
+							from `tabPurchase Receipt` as pr
+							inner join `tabPurchase Receipt Item` as pri on pr.name=pri.parent
+							inner join `tabPurchase Order Item` as poi on poi.parent=pri.purchase_order and poi.item_code=pri.item_code
+							where pr.docstatus=1 and pr.status='To Bill' and is_return=0 and pri.item_code='{0}' and pr.supplier='{1}' limit 1""".format(d, supplier), as_dict=True)
+						new_doc.append("items", {
+							"item_code": d,
+							"rate": pr_detail[0].rate if pr_detail else None,
+							"purchase_order": pr_detail[0].purchase_order if pr_detail else None,
+							"purchase_receipt": pr_detail[0].purchase_receipt if pr_detail else None
+						})
 
-			new_doc.set_missing_values()
-			new_doc.insert(ignore_permissions=True)
-			new_doc.save(ignore_permissions=True)
-			new_doc.submit()
+					new_doc.set_missing_values()
+					new_doc.insert(ignore_permissions=True)
+					new_doc.save(ignore_permissions=True)
+					new_doc.submit()
+		except Exception as e:
+			return "Error occurred while executing {0}".format(invoice_doc.name)
 
-
+			
 def cancel_purchase_invoice(self, method):
 	pi_list = frappe.db.get_list("Purchase Invoice", {"docstatus": 1, "custom_delivery_note": self.name}, ignore_permissions=True)
 	for pi in pi_list:
