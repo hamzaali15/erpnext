@@ -311,10 +311,6 @@ doc_events = {
 	"Sales Taxes and Charges Template": {
 		"on_update": "erpnext.e_commerce.doctype.e_commerce_settings.e_commerce_settings.validate_cart_settings"
 	},
-	"Delivery Note": {
-		"on_submit": "erpnext.selling.doctype.sales_order.sales_order.make_purchase_invoice",
-		"on_cancel": "erpnext.selling.doctype.sales_order.sales_order.cancel_purchase_invoice"
-	},
 	"Sales Invoice": {
 		"before_validate": "erpnext.accounts.doctype.sales_invoice.sales_invoice.remove_shipping_charges",
 		"validate": "erpnext.accounts.doctype.sales_invoice.sales_invoice.remove_shipping_charges",
@@ -343,8 +339,11 @@ doc_events = {
 			"erpnext.regional.create_transaction_log",
 			"erpnext.accounts.doctype.payment_request.payment_request.update_payment_req_status",
 			"erpnext.accounts.doctype.dunning.dunning.resolve_dunning",
+			"erpnext.accounts.doctype.payment_entry.payment_entry.make_purchase_invoice"
 		],
+		# "validate": "erpnext.accounts.doctype.payment_entry.payment_entry.make_purchase_invoice",
 		"on_trash": "erpnext.regional.check_deletion_permission",
+		"on_cancel": "erpnext.accounts.doctype.payment_entry.payment_entry.cancel_purchase_invoice"
 	},
 	"Address": {
 		"validate": [
@@ -400,8 +399,7 @@ scheduler_events = {
 		"erpnext.accounts.doctype.subscription.subscription.process_all",
 		"erpnext.erpnext_integrations.doctype.plaid_settings.plaid_settings.automatic_synchronization",
 		"erpnext.projects.doctype.project.project.hourly_reminder",
-		"erpnext.projects.doctype.project.project.collect_project_status",
-		"erpnext.accounts.doctype.sales_invoice.sales_invoice.make_purchase_invoice"
+		"erpnext.projects.doctype.project.project.collect_project_status"
 	],
 	"hourly_long": [
 		"erpnext.stock.doctype.repost_item_valuation.repost_item_valuation.repost_entries",

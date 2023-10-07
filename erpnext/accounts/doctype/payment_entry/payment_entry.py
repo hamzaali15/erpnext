@@ -2010,3 +2010,63 @@ def make_payment_order(source_name, target_doc=None):
 	)
 
 	return doclist
+
+
+def make_purchase_invoice(self, method):
+	if self.payment_type == "Receive" and self.party_type == "Customer":
+		for pe in self.references:
+			if pe.reference_doctype == "Sales Invoice":
+				pi_dict = []
+				if not frappe.db.exists("Purchase Invoice", {"docstatus": 1, "custom_sales_invoice": pe.reference_name}) and frappe.db.exists("Sales Invoice", {"docstatus": 1, "name": pe.reference_name}):
+					si = frappe.get_doc("Sales Invoice", {"docstatus": 1, "name": pe.reference_name})
+					for itm in si.items:
+						suppliers_list = frappe.get_all("Suppliers Detail", {"disabled": 0}, pluck="supplier")
+						item = frappe.get_doc("Item", itm.item_code)
+
+						if item.supplier_woo and item.supplier_woo in suppliers_list:
+							# Find the index of the supplier in pi_dict
+							supplier_index = next((i for i, d in enumerate(pi_dict) if item.supplier_woo in d), None)
+
+							if supplier_index is not None:
+								# Supplier already exists in pi_dict, append the item to its list
+								pi_dict[supplier_index][item.supplier_woo].append(item.item_code)
+							else:
+								# Supplier doesn't exist in pi_dict, create a new entry
+								pi_dict.append({item.supplier_woo: [item.item_code]})
+						else:
+							# Handle the case when item.supplier_woo is not in suppliers_list
+							pass  # You can add your handling logic here
+					for row in pi_dict:
+						supplier = list(row.keys())[0]  # Convert dict_keys to list and get the first (only) element
+						new_doc = frappe.new_doc("Purchase Invoice")
+						new_doc.supplier = supplier
+						new_doc.s_code = si.po_no
+						new_doc.custom_sales_invoice = si.name
+						new_doc.order_status = "delivered"
+						for d in list(row.values())[0]:
+							pr_detail = frappe.db.sql("""select pr.name as purchase_receipt, pr.posting_date, pri.purchase_order, poi.rate
+								from `tabPurchase Receipt` as pr
+								inner join `tabPurchase Receipt Item` as pri on pr.name=pri.parent
+								inner join `tabPurchase Order Item` as poi on poi.parent=pri.purchase_order and poi.item_code=pri.item_code
+								where pr.docstatus=1 and pr.status='To Bill' and is_return=0 and pri.item_code='{0}' and pr.supplier='{1}' limit 1""".format(d, supplier), as_dict=True)
+							new_doc.append("items", {
+								"item_code": d,
+								"rate": pr_detail[0].rate if pr_detail else None,
+								"purchase_order": pr_detail[0].purchase_order if pr_detail else None,
+								"purchase_receipt": pr_detail[0].purchase_receipt if pr_detail else None
+							})
+
+						new_doc.set_missing_values()
+						new_doc.insert(ignore_permissions=True)
+						new_doc.save(ignore_permissions=True)
+						new_doc.submit()
+
+			
+def cancel_purchase_invoice(self, method):
+	if self.payment_type == "Receive" and self.party_type == "Customer":
+		for pe in self.references:
+			if pe.reference_doctype == "Sales Invoice" and frappe.db.exists("Purchase Invoice", {"docstatus": 1, "custom_sales_invoice": pe.reference_name}):
+				pi_list = frappe.db.get_list("Purchase Invoice", {"docstatus": 1, "custom_sales_invoice": pe.reference_name}, ignore_permissions=True)
+				for pi in pi_list:
+					pi_doc = frappe.get_doc("Purchase Invoice", pi.name)
+					pi_doc.cancel()
