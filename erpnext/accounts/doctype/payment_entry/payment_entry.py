@@ -2063,7 +2063,7 @@ def make_purchase_invoice(self, method):
 
 			
 def cancel_purchase_invoice(self, method):
-	if self.payment_type == "Receive" and self.party_type == "Customer":
+	if self.payment_type == "Receive":
 		for pe in self.references:
 			if pe.reference_doctype == "Sales Invoice" and frappe.db.exists("Purchase Invoice", {"docstatus": 1, "custom_sales_invoice": pe.reference_name}):
 				pi_list = frappe.db.get_list("Purchase Invoice", {"docstatus": 1, "custom_sales_invoice": pe.reference_name}, ignore_permissions=True)
