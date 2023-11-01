@@ -1543,24 +1543,40 @@ def updateErrors():
         done.append("done")
     return done
 
+# @frappe.whitelist(allow_guest=True)
+# def sync_sales_status():
+#     done = []
+#     ids = frappe.db.get_list('Sales Invoice' , pluck='po_no' ,filters={
+#         'delivery_driver':['like', ''] ,
+#         'po_no':['like', '%112%']
+        
+#     })
+#     for id in ids:
+#         if frappe.db.exists("Sales Order",{"woocommerce_id": id,"docstatus":1}) and  frappe.db.exists("Sales Invoice",{"po_no": id,"docstatus":1}):
+#             order = frappe.get_doc("Sales Order", {"woocommerce_id": id,"docstatus":1})
+#             pi = frappe.get_doc("Sales Invoice",{"po_no": id,"docstatus":1})
+#             if(order.delivery_driver != '' and order.delivery_driver is not None):
+#                 pi.delivery_driver = order.delivery_driver
+#                 pi.save()
+#                 done.append("done")
+#                 frappe.db.commit()
+                
+#     return ids
+    
+
 @frappe.whitelist(allow_guest=True)
 def sync_sales_status():
-    done = []
-    ids = frappe.db.get_list('Sales Invoice' , pluck='po_no' ,filters={
-        'delivery_driver':['like', ''] ,
-        'po_no':['like', '%112%']
-        
-    })
-    for id in ids:
-        if frappe.db.exists("Sales Order",{"woocommerce_id": id,"docstatus":1}) and  frappe.db.exists("Sales Invoice",{"po_no": id,"docstatus":1}):
-            order = frappe.get_doc("Sales Order", {"woocommerce_id": id,"docstatus":1})
-            pi = frappe.get_doc("Sales Invoice",{"po_no": id,"docstatus":1})
-            if(order.delivery_driver != '' and order.delivery_driver is not None):
-                pi.delivery_driver = order.delivery_driver
-                pi.save()
-                done.append("done")
-                frappe.db.commit()
-                
-    return ids
-    
-           
+	done = []
+	ids = frappe.db.get_list('Sales Invoice' , pluck='po_no' ,filters={'delivery_driver':['like', ''] , 'po_no':['like', '%112%']}, ignore_permissions=True)
+	for id in ids:
+		if frappe.db.exists("Sales Order",{"woocommerce_id": id,"docstatus":1}) and  frappe.db.exists("Sales Invoice",{"po_no": id,"docstatus":1}):
+			order = frappe.get_doc("Sales Order", {"woocommerce_id": id,"docstatus":1})
+			pi = frappe.get_doc("Sales Invoice",{"po_no": id,"docstatus":1})
+			if(order.delivery_driver != '' and order.delivery_driver is not None):
+				pi.delivery_driver = order.delivery_driver
+				# pi.save()
+				pi.db_update()
+				done.append("done")
+				frappe.db.commit()
+				
+	return ids
