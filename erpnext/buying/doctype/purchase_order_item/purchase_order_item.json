@@ -104,7 +104,8 @@
   "production_plan",
   "production_plan_item",
   "production_plan_sub_assembly_item",
-  "page_break"
+  "page_break",
+  "data_99"
  ],
  "fields": [
   {
@@ -262,8 +263,10 @@
    "fieldtype": "Section Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "price_list_rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Price List Rate",
    "options": "currency",
    "print_hide": 1
@@ -286,16 +289,20 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "last_purchase_rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Last Purchase Rate",
    "options": "currency",
    "print_hide": 1,
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "base_price_list_rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Price List Rate (Company Currency)",
    "options": "Company:company:default_currency",
    "print_hide": 1,
@@ -306,10 +313,12 @@
    "fieldtype": "Section Break"
   },
   {
+   "allow_on_submit": 1,
    "bold": 1,
    "columns": 2,
    "fieldname": "rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "in_list_view": 1,
    "label": "Rate",
    "oldfieldname": "import_rate",
@@ -334,9 +343,11 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "\r\n\r\n",
    "fieldname": "base_rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Rate (Company Currency)",
    "oldfieldname": "purchase_rate",
    "oldfieldtype": "Currency",
@@ -399,8 +410,10 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "base_net_rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Net Rate (Company Currency)",
    "options": "Company:company:default_currency",
    "print_hide": 1,
@@ -547,9 +560,11 @@
    "options": "Blanket Order"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:doc.against_blanket_order",
    "fieldname": "blanket_order_rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Blanket Order Rate",
    "no_copy": 1,
    "print_hide": 1,
@@ -650,10 +665,12 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "description": "Tax detail table fetched from item master as a string and stored in this field.\nUsed for Taxes and Charges",
    "fieldname": "item_tax_rate",
    "fieldtype": "Code",
    "hidden": 1,
+   "ignore_user_permissions": 1,
    "label": "Item Tax Rate",
    "oldfieldname": "item_tax_rate",
    "oldfieldtype": "Small Text",
@@ -754,9 +771,11 @@
    "label": "More Information"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval: doc.uom != doc.stock_uom",
    "fieldname": "stock_uom_rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Rate of Stock UOM",
    "no_copy": 1,
    "options": "currency",
@@ -798,12 +817,16 @@
    "fieldname": "margin_rate_or_amount",
    "fieldtype": "Float",
    "label": "Margin Rate or Amount",
-   "print_hide": 1
+   "print_hide": 1,
+   "print_hide_if_no_value": 1,
+   "report_hide": 1
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:doc.margin_type && doc.price_list_rate && doc.margin_rate_or_amount",
    "fieldname": "rate_with_margin",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Rate With Margin",
    "options": "currency",
    "print_hide": 1,
@@ -814,9 +837,11 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:doc.margin_type && doc.price_list_rate && doc.margin_rate_or_amount",
    "fieldname": "base_rate_with_margin",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Rate With Margin (Company Currency)",
    "options": "Company:company:default_currency",
    "print_hide": 1,
@@ -875,13 +900,17 @@
    "fieldtype": "Float",
    "label": "Finished Good Item Qty",
    "mandatory_depends_on": "eval:parent.is_subcontracted && !parent.is_old_subcontracting_flow"
+  },
+  {
+   "fieldname": "data_99",
+   "fieldtype": "Data"
   }
  ],
  "idx": 1,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-02-20 11:27:21.661152",
+ "modified": "2023-10-24 11:50:00.329787",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order Item",

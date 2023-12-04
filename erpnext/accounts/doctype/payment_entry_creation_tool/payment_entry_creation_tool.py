@@ -3,6 +3,7 @@
 
 import frappe
 from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry
+from frappe.utils import nowdate
 from frappe.model.document import Document
 
 class PaymentEntryCreationTool(Document):
@@ -18,13 +19,10 @@ class PaymentEntryCreationTool(Document):
 				frappe.msgprint('The File extension should be CSV or XLSX type.', 'Invalid File')
 				return
 			frappe.msgprint("Payment Entry is Creating in the background")
-			if len(order_ids_list) > 10:
-				frappe.enqueue(create_payment_entries, self=self, queue="long")
-			else:
-				create_payment_entries(self)
+			frappe.enqueue(create_payment_entries, self=self, queue="long")
 			# self.completed = 1
-			self.save()
-			frappe.db.commit()
+			#self.save()
+			#frappe.db.commit()
 		else:
 			frappe.msgprint('The File does not exists.', 'Invalid File')
 			return
@@ -40,7 +38,16 @@ def create_payment_entries(self):
 				try:
 					si = frappe.get_doc("Sales Invoice", {"po_no": d})
 					pe = get_payment_entry("Sales Invoice", si.name)
+					pe.po_no = d
 					pe.set_missing_values()
+
+					bank_account = pe.paid_to if pe.payment_type == "Receive" else pe.paid_from
+					bank_account_type = frappe.db.get_value("Account", bank_account, "account_type")
+					if bank_account_type == "Bank":
+						if not pe.reference_no or not pe.reference_date:
+						    pe.reference_no = si.name
+						    pe.reference_date = nowdate()
+
 					pe.insert(ignore_permissions=True)
 					pe.save(ignore_permissions=True)
 					pe.submit()
@@ -51,26 +58,26 @@ def create_payment_entries(self):
 						"description": "Payment Entry Created Successfully"
 					})
 					self.save()
-					self.db_update()
-					frappe.db.commit()
+					#self.db_update()
+					#frappe.db.commit()
 				except Exception as e:
 					self.append("invoices_detail", {
 						"order_id": d,
 						"status": "Failed",
-						"description": "Payment Entry Creation Failed"
+						"description": e  #"Payment Entry Creation Failed"
 					})
 					self.save()
-					self.db_update()
-					frappe.db.commit()
+					#self.db_update()
+					#frappe.db.commit()
 			else:
 				self.append("invoices_detail", {
 					"order_id": d,
 					"status": "Failed",
 					"description": "Sales Invoice is Paid/Cancelled or does not Exist"
 				})
-				self.save()
-				self.db_update()
-				frappe.db.commit()
-		self.completed = 1
-		self.save()
-		frappe.db.commit()
+				#self.save()
+				#self.db_update()
+				#frappe.db.commit()
+	self.completed = 1
+	self.save()
+	frappe.db.commit()

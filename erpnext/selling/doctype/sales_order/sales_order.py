@@ -1299,3 +1299,18 @@ def update_produced_qty_in_so_item(sales_order, sales_order_item):
 		return
 
 	frappe.db.set_value("Sales Order Item", sales_order_item, "produced_qty", total_produced_qty)
+
+
+def update_pi_status(self, method):
+	if self.woocommerce_id:
+		pi_list = frappe.db.get_list("Purchase Invoice", {"docstatus": 1, "s_code": self.woocommerce_id}, "name")
+		for row in pi_list:
+			pi_doc = frappe.get_doc("Purchase Invoice", row.name)
+			pi_doc.db_set("order_status", self.woocommerce_status)
+
+
+def update_cancel_status(self, method):
+    if self.woocommerce_status == 'error':
+        self.woocommerce_status = 'cancelled'
+        self.db_update()
+        frappe.db.commit()

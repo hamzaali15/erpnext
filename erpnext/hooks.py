@@ -290,6 +290,11 @@ doc_events = {
 		"on_submit": "erpnext.stock.doctype.material_request.material_request.update_completed_and_requested_qty",
 		"on_cancel": "erpnext.stock.doctype.material_request.material_request.update_completed_and_requested_qty",
 	},
+	"Sales Order": {
+		"validate": "erpnext.selling.doctype.sales_order.sales_order.update_pi_status",
+		"on_cancel": "erpnext.selling.doctype.sales_order.sales_order.update_cancel_status",
+		"on_update_after_submit": "erpnext.selling.doctype.sales_order.sales_order.update_pi_status",
+	},
 	"User": {
 		"after_insert": "frappe.contacts.doctype.contact.contact.update_contact",
 		"validate": "erpnext.setup.doctype.employee.employee.validate_employee_role",
@@ -312,14 +317,15 @@ doc_events = {
 		"on_update": "erpnext.e_commerce.doctype.e_commerce_settings.e_commerce_settings.validate_cart_settings"
 	},
 	"Sales Invoice": {
-		"before_validate": "erpnext.accounts.doctype.sales_invoice.sales_invoice.remove_shipping_charges",
-		"validate": "erpnext.accounts.doctype.sales_invoice.sales_invoice.remove_shipping_charges",
+		#"validate": "erpnext.erpnext_integrations.connectors.woocommerce_connection.sync_invoice_status",
 		"on_submit": [
+			#"erpnext.erpnext_integrations.connectors.woocommerce_connection.sync_invoice_status",
 			"erpnext.regional.create_transaction_log",
 			"erpnext.regional.italy.utils.sales_invoice_on_submit",
 			"erpnext.regional.saudi_arabia.utils.create_qr_code",
 			"erpnext.erpnext_integrations.taxjar_integration.create_transaction",
 		],
+		#"on_update_after_submit": "erpnext.erpnext_integrations.connectors.woocommerce_connection.sync_invoice_status",
 		"on_cancel": [
 			"erpnext.regional.italy.utils.sales_invoice_on_cancel",
 			"erpnext.erpnext_integrations.taxjar_integration.delete_transaction",
@@ -337,11 +343,10 @@ doc_events = {
 	"Payment Entry": {
 		"on_submit": [
 			"erpnext.regional.create_transaction_log",
+			"erpnext.accounts.doctype.payment_entry.payment_entry.make_purchase_invoice",
 			"erpnext.accounts.doctype.payment_request.payment_request.update_payment_req_status",
 			"erpnext.accounts.doctype.dunning.dunning.resolve_dunning",
-			"erpnext.accounts.doctype.payment_entry.payment_entry.make_purchase_invoice"
 		],
-		# "validate": "erpnext.accounts.doctype.payment_entry.payment_entry.make_purchase_invoice",
 		"on_trash": "erpnext.regional.check_deletion_permission",
 		"on_cancel": "erpnext.accounts.doctype.payment_entry.payment_entry.cancel_purchase_invoice"
 	},
@@ -376,6 +381,12 @@ auto_cancel_exempted_doctypes = [
 
 scheduler_events = {
 	"cron": {
+		"0/1 * * * *": [
+			"erpnext.erpnext_integrations.connectors.woocommerce_connection.sync_sales_invoice_status",
+		],
+        "0/1 * * * *": [
+            "erpnext.erpnext_integrations.connectors.woocommerce_connection.sync_purchase_invoice_status",
+        ],
 		"0/5 * * * *": [
 			"erpnext.manufacturing.doctype.bom_update_log.bom_update_log.resume_bom_cost_update_jobs",
 		],
@@ -399,9 +410,12 @@ scheduler_events = {
 		"erpnext.accounts.doctype.subscription.subscription.process_all",
 		"erpnext.erpnext_integrations.doctype.plaid_settings.plaid_settings.automatic_synchronization",
 		"erpnext.projects.doctype.project.project.hourly_reminder",
-		"erpnext.projects.doctype.project.project.collect_project_status"
+		"erpnext.projects.doctype.project.project.collect_project_status",
 	],
 	"hourly_long": [
+		"erpnext.erpnext_integrations.connectors.woocommerce_connection.sync_cancelled_status",
+		"erpnext.erpnext_integrations.connectors.woocommerce_connection.sync_sales_invoice_status",
+		"erpnext.erpnext_integrations.connectors.woocommerce_connection.sync_purchase_invoice_status",
 		"erpnext.stock.doctype.repost_item_valuation.repost_item_valuation.repost_entries",
 		"erpnext.bulk_transaction.doctype.bulk_transaction_log.bulk_transaction_log.retry_failing_transaction",
 	],

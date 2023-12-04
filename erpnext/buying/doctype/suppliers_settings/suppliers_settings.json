@@ -1,8 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2023-09-26 08:41:08.956156",
- "default_view": "List",
+ "creation": "2023-10-02 21:06:40.068269",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -11,7 +10,6 @@
  ],
  "fields": [
   {
-   "allow_bulk_edit": 1,
    "fieldname": "suppliers_detail",
    "fieldtype": "Table",
    "label": "Suppliers Detail",
@@ -22,7 +20,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-09-30 17:47:47.242045",
+ "modified": "2023-10-02 21:08:21.907573",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Suppliers Settings",

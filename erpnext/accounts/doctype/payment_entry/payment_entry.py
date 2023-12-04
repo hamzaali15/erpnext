@@ -2061,7 +2061,7 @@ def make_purchase_invoice(self, method):
 						new_doc.save(ignore_permissions=True)
 						new_doc.submit()
 
-			
+
 def cancel_purchase_invoice(self, method):
 	if self.payment_type == "Receive":
 		for pe in self.references:

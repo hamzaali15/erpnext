@@ -680,7 +680,7 @@ def link_items_int(items_list, woocommerce_settings, sys_lang,orderId):
 		if(item_data.get("seller_id") == 24628):
 		    item= frappe.get_doc("Item", {"sku": item_woo_com_id})
 		    item_hn.append({'item_code': item.item_code , 'qty':item_data.get("quantity") ,'rate':item_data.get("cost")})
-		if(item_data.get("seller_id") == 28047) and False:
+		if(item_data.get("seller_id") == 28047):
 		    item= frappe.get_doc("Item", {"sku": item_woo_com_id})
 		    item_mid.append({'item_code': item.item_code , 'qty':item_data.get("quantity") ,'rate':item_data.get("cost")})
 		if(item_data.get("seller_id") == 29264):
@@ -741,7 +741,7 @@ def link_items_int(items_list, woocommerce_settings, sys_lang,orderId):
 	    po = create_purchase_order(item_hn,'Hisense Libya',orderId)
 #	    transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
 	#    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
-	if item_mid is not None and item_mid != [] and False:
+	if item_mid is not None and item_mid != []:
 	    po = create_purchase_order(item_mid,'Midea baahy',orderId)
 #	    transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
 	#    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
@@ -1532,6 +1532,47 @@ def sync_order_status():
     frappe.db.commit()
     return done
             
+
+@frappe.whitelist(allow_guest=True)
+def sync_sales_invoice_status():
+	ids = frappe.db.get_list('Sales Invoice' ,pluck='po_no' , filters={'delivery_driver': ['like', ''] , 'po_no':['like', '%112%']}, ignore_permissions=True)
+	for id in ids:
+		if frappe.db.exists("Sales Order", {"woocommerce_id": id, "docstatus": 1}) and frappe.db.exists("Sales Invoice", {"po_no": id, "docstatus": 1}):
+			order = frappe.get_doc("Sales Order", {"woocommerce_id": id, "docstatus":1})
+			si = frappe.get_doc("Sales Invoice", {"po_no": id, "docstatus": 1})
+			if(order.delivery_driver != '' and order.delivery_driver is not None):
+				si.delivery_driver = order.delivery_driver
+				si.db_update()
+				frappe.db.commit()
+	return ids
+
+
+def sync_invoice_status(self, method):
+	ids = frappe.db.get_list('Sales Invoice' ,pluck='po_no' , filters={'delivery_driver': ['like', ''] , 'po_no':['like', '%112%']}, ignore_permissions=True)
+	for id in ids:
+		if frappe.db.exists("Sales Order", {"woocommerce_id": id, "docstatus": 1}) and frappe.db.exists("Sales Invoice", {"po_no": id, "docstatus": 1}):
+			order = frappe.get_doc("Sales Order", {"woocommerce_id": id, "docstatus":1})
+			si = frappe.get_doc("Sales Invoice", {"po_no": id, "docstatus": 1})
+			if(order.delivery_driver != '' and order.delivery_driver is not None):
+				si.delivery_driver = order.delivery_driver
+				si.db_update()
+				frappe.db.commit()
+	return ids
+
+
+@frappe.whitelist(allow_guest=True)
+def sync_purchase_invoice_status():
+	ids = frappe.db.get_list('Purchase Invoice', pluck='s_code' , filters={'s_code': ['like', '%112%']}, ignore_permissions=True)
+	for id in ids:
+		if frappe.db.exists("Sales Order", {"woocommerce_id": id, "docstatus": 1}) and frappe.db.exists("Purchase Invoice", {"s_code": id, "docstatus": 1}):
+			order = frappe.get_doc("Sales Order", {"woocommerce_id": id, "docstatus":1})
+			pi = frappe.get_doc("Purchase Invoice", {"s_code": id, "docstatus": 1})
+			if pi.order_status != order.woocommerce_status:
+				pi.order_status = order.woocommerce_status
+				pi.db_update()
+				frappe.db.commit()
+
+
 @frappe.whitelist(allow_guest=True)
 def updateErrors():
     done = []
@@ -1543,40 +1584,33 @@ def updateErrors():
         done.append("done")
     return done
 
-# @frappe.whitelist(allow_guest=True)
-# def sync_sales_status():
-#     done = []
-#     ids = frappe.db.get_list('Sales Invoice' , pluck='po_no' ,filters={
-#         'delivery_driver':['like', ''] ,
-#         'po_no':['like', '%112%']
-        
-#     })
-#     for id in ids:
-#         if frappe.db.exists("Sales Order",{"woocommerce_id": id,"docstatus":1}) and  frappe.db.exists("Sales Invoice",{"po_no": id,"docstatus":1}):
-#             order = frappe.get_doc("Sales Order", {"woocommerce_id": id,"docstatus":1})
-#             pi = frappe.get_doc("Sales Invoice",{"po_no": id,"docstatus":1})
-#             if(order.delivery_driver != '' and order.delivery_driver is not None):
-#                 pi.delivery_driver = order.delivery_driver
-#                 pi.save()
-#                 done.append("done")
-#                 frappe.db.commit()
-                
-#     return ids
-    
 
 @frappe.whitelist(allow_guest=True)
 def sync_sales_status():
-	done = []
-	ids = frappe.db.get_list('Sales Invoice' , pluck='po_no' ,filters={'delivery_driver':['like', ''] , 'po_no':['like', '%112%']}, ignore_permissions=True)
-	for id in ids:
-		if frappe.db.exists("Sales Order",{"woocommerce_id": id,"docstatus":1}) and  frappe.db.exists("Sales Invoice",{"po_no": id,"docstatus":1}):
-			order = frappe.get_doc("Sales Order", {"woocommerce_id": id,"docstatus":1})
-			pi = frappe.get_doc("Sales Invoice",{"po_no": id,"docstatus":1})
-			if(order.delivery_driver != '' and order.delivery_driver is not None):
-				pi.delivery_driver = order.delivery_driver
-				# pi.save()
-				pi.db_update()
-				done.append("done")
-				frappe.db.commit()
-				
-	return ids
+    done = []
+    ids = frappe.db.get_list('Sales Invoice' , pluck='po_no' ,filters={
+        'delivery_driver':['like', ''] ,
+        'po_no':['like', '%112%']
+        
+    })
+    for id in ids:
+        if frappe.db.exists("Sales Order",{"woocommerce_id": id,"docstatus":1}) and  frappe.db.exists("Sales Invoice",{"po_no": id,"docstatus":1}):
+            order = frappe.get_doc("Sales Order", {"woocommerce_id": id,"docstatus":1})
+            pi = frappe.get_doc("Sales Invoice",{"po_no": id,"docstatus":1})
+            if(order.delivery_driver != '' and order.delivery_driver is not None):
+                pi.delivery_driver = order.delivery_driver
+                pi.save()
+                done.append("done")
+                frappe.db.commit()
+                
+    return ids
+
+
+@frappe.whitelist(allow_guest=True)
+def sync_cancelled_status():
+    cancelled_ids = frappe.db.get_list('Sales Order', filters={'docstatus': 2, 'woocommerce_status': 'error'})
+    for id in cancelled_ids:
+        cancelled_order = frappe.get_doc("Sales Order", id.get('name'))
+        cancelled_order.woocommerce_status = 'cancelled'
+        cancelled_order.db_update()
+        frappe.db.commit()

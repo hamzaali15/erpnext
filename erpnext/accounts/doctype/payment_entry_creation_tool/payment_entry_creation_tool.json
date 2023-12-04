@@ -1,41 +1,21 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2023-11-01 04:21:50.799708",
- "default_view": "List",
+ "creation": "2023-11-01 11:02:33.648127",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "sales_invoice_list",
   "completed",
-  "invoices_detail",
-  "amended_from"
+  "invoices_detail"
  ],
  "fields": [
   {
    "fieldname": "sales_invoice_list",
    "fieldtype": "Attach",
-   "in_list_view": 1,
    "label": "Sales Invoice List",
-   "reqd": 1
-  },
-  {
-   "fieldname": "invoices_detail",
-   "fieldtype": "Table",
-   "label": "Invoices Detail",
-   "no_copy": 1,
-   "options": "Payment Entry Creation Tool Child",
-   "read_only": 1
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Payment Entry Creation Tool",
-   "print_hide": 1,
-   "read_only": 1
+   "no_copy": 1
   },
   {
    "default": "0",
@@ -44,11 +24,19 @@
    "label": "Completed",
    "no_copy": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "invoices_detail",
+   "fieldtype": "Table",
+   "label": "Invoices Detail",
+   "no_copy": 1,
+   "options": "Payment Entry Creation Tool Child",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-01 10:44:13.061802",
+ "modified": "2023-11-01 12:23:05.856116",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Entry Creation Tool",

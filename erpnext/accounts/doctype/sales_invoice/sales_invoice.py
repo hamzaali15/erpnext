@@ -2587,15 +2587,3 @@ def check_if_return_invoice_linked_with_payment_entry(self):
 			message += " " + ", ".join(payment_entries_link) + " "
 			message += _("to unallocate the amount of this Return Invoice before cancelling it.")
 			frappe.throw(message)
-
-
-def remove_shipping_charges(self, method):
-	if self.po_no and frappe.db.exists("Sales Order", {"woocommerce_id": self.po_no}):
-		so = frappe.get_doc("Sales Order", {"woocommerce_id": self.po_no})
-		if so.get("woocommerce_status") == "vanex":
-			for d in self.taxes:
-				if d.account_head == "4111 - Shipping revenue - b":
-					self.total_taxes_and_charges -= d.tax_amount
-					self.grand_total -= d.tax_amount
-					self.remove(d)
-			# self.set_missing_values()
