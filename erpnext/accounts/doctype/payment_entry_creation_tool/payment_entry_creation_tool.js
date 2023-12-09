@@ -17,5 +17,15 @@ frappe.ui.form.on('Payment Entry Creation Tool', {
 		if(frm.doc.completed) {
 			frm.disable_save();
 		}
+	},
+	temp_button: function(frm) {
+		if (!frm.is_new() && !frm.doc.completed) {
+			frappe.call({
+				method: "update_order_status_after_payment",
+				doc: frm.doc,
+				callback: function(r) {
+				}
+			});
+		}
 	}
 });
