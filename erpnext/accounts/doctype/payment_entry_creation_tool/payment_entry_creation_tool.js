@@ -19,13 +19,16 @@ frappe.ui.form.on('Payment Entry Creation Tool', {
 		}
 	},
 	temp_button: function(frm) {
-		if (!frm.is_new() && !frm.doc.completed) {
-			frappe.call({
-				method: "update_order_status_after_payment",
-				doc: frm.doc,
-				callback: function(r) {
-				}
-			});
-		}
+		frappe.call({
+			method: "update_order_status_after_payment",
+			doc: frm.doc,
+			callback: function(r) {
+				console.log("update_order_status_after_payment");
+				console.log("Status Update");
+				console.log(r);
+				console.log(r.message);
+				frappe.show_alert({message:__("Success"), indicator:'green'});
+			}
+		});
 	}
 });
