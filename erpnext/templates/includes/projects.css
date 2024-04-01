@@ -1,5 +1,7 @@
 /* CSS used here will be applied after bootstrap.css */
-
+.text-right {
+    text-align: left !important;
+}
 .underline {
 	text-decoration: underline;
 }

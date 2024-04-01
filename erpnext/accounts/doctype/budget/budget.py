@@ -5,6 +5,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.model.naming import make_autoname
 from frappe.utils import add_months, flt, fmt_money, get_last_day, getdate
 
 from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (
@@ -22,6 +23,11 @@ class DuplicateBudgetError(frappe.ValidationError):
 
 
 class Budget(Document):
+	def autoname(self):
+		self.name = make_autoname(
+			self.get(frappe.scrub(self.budget_against)) + "/" + self.fiscal_year + "/.###"
+		)
+
 	def validate(self):
 		if not self.get(frappe.scrub(self.budget_against)):
 			frappe.throw(_("{0} is mandatory").format(self.budget_against))
@@ -103,11 +109,8 @@ class Budget(Document):
 		):
 			self.applicable_on_booking_actual_expenses = 1
 
-	def before_naming(self):
-		self.naming_series = f"{{{frappe.scrub(self.budget_against)}}}./.{self.fiscal_year}/.###"
 
-
-def validate_expense_against_budget(args, expense_amount=0):
+def validate_expense_against_budget(args):
 	args = frappe._dict(args)
 
 	if args.get("company") and not args.fiscal_year:
@@ -175,13 +178,13 @@ def validate_expense_against_budget(args, expense_amount=0):
 			)  # nosec
 
 			if budget_records:
-				validate_budget_records(args, budget_records, expense_amount)
+				validate_budget_records(args, budget_records)
 
 
-def validate_budget_records(args, budget_records, expense_amount):
+def validate_budget_records(args, budget_records):
 	for budget in budget_records:
 		if flt(budget.budget_amount):
-			amount = expense_amount or get_amount(args, budget)
+			amount = get_amount(args, budget)
 			yearly_action, monthly_action = get_actions(args, budget)
 
 			if monthly_action in ["Stop", "Warn"]:

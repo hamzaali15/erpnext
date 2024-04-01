@@ -30,28 +30,28 @@ erpnext.accounts.bank_reconciliation.DataTableManager = class DataTableManager {
 	get_dt_columns() {
 		this.columns = [
 			{
-				name: __("Date"),
+				name: "Date",
 				editable: false,
 				width: 100,
 			},
 
 			{
-				name: __("Party Type"),
+				name: "Party Type",
 				editable: false,
 				width: 95,
 			},
 			{
-				name: __("Party"),
+				name: "Party",
 				editable: false,
 				width: 100,
 			},
 			{
-				name: __("Description"),
+				name: "Description",
 				editable: false,
 				width: 350,
 			},
 			{
-				name: __("Deposit"),
+				name: "Deposit",
 				editable: false,
 				width: 100,
 				format: (value) =>
@@ -60,7 +60,7 @@ erpnext.accounts.bank_reconciliation.DataTableManager = class DataTableManager {
 					"</span>",
 			},
 			{
-				name: __("Withdrawal"),
+				name: "Withdrawal",
 				editable: false,
 				width: 100,
 				format: (value) =>
@@ -69,26 +69,26 @@ erpnext.accounts.bank_reconciliation.DataTableManager = class DataTableManager {
 					"</span>",
 			},
 			{
-				name: __("Unallocated Amount"),
+				name: "Unallocated Amount",
 				editable: false,
 				width: 100,
 				format: (value) =>
-					"<span style='color:var(--blue-500);'>" +
+					"<span style='color:blue;'>" +
 					format_currency(value, this.currency) +
 					"</span>",
 			},
 			{
-				name: __("Reference Number"),
+				name: "Reference Number",
 				editable: false,
 				width: 140,
 			},
 			{
-				name: __("Actions"),
+				name: "Actions",
 				editable: false,
 				sortable: false,
 				focusable: false,
 				dropdown: false,
-				width: 100,
+				width: 80,
 			},
 		];
 	}
@@ -118,7 +118,7 @@ erpnext.accounts.bank_reconciliation.DataTableManager = class DataTableManager {
 			row["reference_number"],
 			`
 			<Button class="btn btn-primary btn-xs center"  data-name = ${row["name"]} >
-				${__("Actions")}
+				Actions
 			</a>
 			`,
 		];

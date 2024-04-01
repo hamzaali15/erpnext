@@ -49,7 +49,7 @@ def make_custom_fields(update=True):
 			dict(
 				fieldname="exempt_from_sales_tax",
 				fieldtype="Check",
-				insert_after="dn_required",
+				insert_after="represents_company",
 				label="Is customer exempted from sales tax?",
 			)
 		],

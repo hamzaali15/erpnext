@@ -16,6 +16,8 @@
   "image",
   "column_break_5",
   "defaults",
+  "id_woocommerce",
+  "name_woocommerce",
   "item_group_defaults",
   "sec_break_taxes",
   "taxes",
@@ -224,6 +226,16 @@
    "fieldname": "include_descendants",
    "fieldtype": "Check",
    "label": "Include Descendants"
+  },
+  {
+   "fieldname": "id_woocommerce",
+   "fieldtype": "Data",
+   "label": "ID Woocommerce"
+  },
+  {
+   "fieldname": "name_woocommerce",
+   "fieldtype": "Data",
+   "label": "Name Woocommerce"
   }
  ],
  "icon": "fa fa-sitemap",
@@ -232,7 +244,7 @@
  "is_tree": 1,
  "links": [],
  "max_attachments": 3,
- "modified": "2022-03-09 12:27:11.055782",
+ "modified": "2022-12-24 12:36:49.757495",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "Item Group",

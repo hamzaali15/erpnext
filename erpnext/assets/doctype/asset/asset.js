@@ -136,10 +136,6 @@ frappe.ui.form.on('Asset', {
 				}, __("Manage"));
 			}
 
-			if (frm.doc.depr_entry_posting_status === "Failed") {
-				frm.trigger("set_depr_posting_failure_alert");
-			}
-
 			frm.trigger("setup_chart");
 		}
 
@@ -148,19 +144,6 @@ frappe.ui.form.on('Asset', {
 		if (frm.doc.docstatus == 0) {
 			frm.toggle_reqd("finance_books", frm.doc.calculate_depreciation);
 		}
-	},
-
-	set_depr_posting_failure_alert: function (frm) {
-		const alert = `
-			<div class="row">
-				<div class="col-xs-12 col-sm-6">
-					<span class="indicator whitespace-nowrap red">
-						<span>Failed to post depreciation entries</span>
-					</span>
-				</div>
-			</div>`;
-
-		frm.dashboard.set_headline_alert(alert);
 	},
 
 	toggle_reference_doc: function(frm) {
@@ -247,7 +230,7 @@ frappe.ui.form.on('Asset', {
 				datasets: [{
 					color: 'green',
 					values: asset_values,
-					formatted: asset_values.map(d => d?.toFixed(2))
+					formatted: asset_values.map(d => d.toFixed(2))
 				}]
 			},
 			type: 'line'
@@ -256,10 +239,8 @@ frappe.ui.form.on('Asset', {
 
 
 	item_code: function(frm) {
-		if(frm.doc.item_code && frm.doc.calculate_depreciation) {
+		if(frm.doc.item_code) {
 			frm.trigger('set_finance_book');
-		} else {
-			frm.set_value('finance_books', []);
 		}
 	},
 
@@ -400,11 +381,6 @@ frappe.ui.form.on('Asset', {
 
 	calculate_depreciation: function(frm) {
 		frm.toggle_reqd("finance_books", frm.doc.calculate_depreciation);
-		if (frm.doc.item_code && frm.doc.calculate_depreciation ) {
-			frm.trigger("set_finance_book");
-		} else {
-			frm.set_value("finance_books", []);
-		}
 	},
 
 	gross_purchase_amount: function(frm) {
@@ -449,11 +425,7 @@ frappe.ui.form.on('Asset', {
 
 	set_values_from_purchase_doc: function(frm, doctype, purchase_doc) {
 		frm.set_value('company', purchase_doc.company);
-		if (purchase_doc.bill_date) {
-			frm.set_value('purchase_date', purchase_doc.bill_date);
-		} else {
-			frm.set_value('purchase_date', purchase_doc.posting_date);
-		}
+		frm.set_value('purchase_date', purchase_doc.posting_date);
 		const item = purchase_doc.items.find(item => item.item_code === frm.doc.item_code);
 		if (!item) {
 			doctype_field = frappe.scrub(doctype)

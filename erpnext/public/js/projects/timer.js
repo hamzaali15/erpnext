@@ -48,23 +48,21 @@ erpnext.timesheet.control_timer = function(frm, dialog, row, timestamp=0) {
 	var $btn_complete = dialog.$wrapper.find(".playpause .btn-complete");
 	var interval = null;
 	var currentIncrement = timestamp;
-	var initialized = row ? true : false;
+	var initialised = row ? true : false;
 	var clicked = false;
 	var flag = true; // Alert only once
 	// If row with not completed status, initialize timer with the time elapsed on click of 'Start Timer'.
 	if (row) {
-		initialized = true;
+		initialised = true;
 		$btn_start.hide();
 		$btn_complete.show();
-		initializeTimer();
+		initialiseTimer();
 	}
-
-	if (!initialized) {
+	if (!initialised) {
 		$btn_complete.hide();
 	}
-
 	$btn_start.click(function(e) {
-		if (!initialized) {
+		if (!initialised) {
 			// New activity if no activities found
 			var args = dialog.get_values();
 			if(!args) return;
@@ -92,11 +90,11 @@ erpnext.timesheet.control_timer = function(frm, dialog, row, timestamp=0) {
 			return false;
 		}
 
-		if (!initialized) {
-			initialized = true;
+		if (!initialised) {
+			initialised = true;
 			$btn_start.hide();
 			$btn_complete.show();
-			initializeTimer();
+			initialiseTimer();
 		}
 	});
 
@@ -112,13 +110,11 @@ erpnext.timesheet.control_timer = function(frm, dialog, row, timestamp=0) {
 		grid_row.doc.hours = currentIncrement / 3600;
 		grid_row.doc.to_time = frappe.datetime.now_datetime();
 		grid_row.refresh();
-		frm.dirty();
 		frm.save();
 		reset();
 		dialog.hide();
 	});
-
-	function initializeTimer() {
+	function initialiseTimer() {
 		interval = setInterval(function() {
 			var current = setCurrentIncrement();
 			updateStopwatch(current);
@@ -155,7 +151,7 @@ erpnext.timesheet.control_timer = function(frm, dialog, row, timestamp=0) {
 
 	function reset() {
 		currentIncrement = 0;
-		initialized = false;
+		initialised = false;
 		clearInterval(interval);
 		$(".hours").text("00");
 		$(".minutes").text("00");

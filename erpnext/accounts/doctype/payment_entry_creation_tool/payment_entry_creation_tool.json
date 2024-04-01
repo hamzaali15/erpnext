@@ -1,0 +1,68 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-11-01 11:02:33.648127",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "sales_invoice_list",
+  "completed",
+  "temp_button",
+  "invoices_detail"
+ ],
+ "fields": [
+  {
+   "fieldname": "sales_invoice_list",
+   "fieldtype": "Attach",
+   "label": "Sales Invoice List",
+   "no_copy": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "completed",
+   "fieldtype": "Check",
+   "label": "Completed",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoices_detail",
+   "fieldtype": "Table",
+   "label": "Invoices Detail",
+   "no_copy": 1,
+   "options": "Payment Entry Creation Tool Child",
+   "read_only": 1
+  },
+  {
+   "fieldname": "temp_button",
+   "fieldtype": "Button",
+   "hidden": 1,
+   "label": "Temp Button"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2023-12-10 22:11:31.182830",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Payment Entry Creation Tool",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -120,7 +120,7 @@ def link_open_tasks(ref_doctype, ref_docname, doc):
 		todo_doc = frappe.get_doc("ToDo", todo.name)
 		todo_doc.reference_type = doc.doctype
 		todo_doc.reference_name = doc.name
-		todo_doc.save()
+		todo_doc.db_update()
 
 
 def link_open_events(ref_doctype, ref_docname, doc):

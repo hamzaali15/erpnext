@@ -87,13 +87,13 @@ class InstallationNote(TransactionBase):
 			frappe.throw(_("Please pull items from Delivery Note"))
 
 	def on_update(self):
-		self.db_set("status", "Draft")
+		frappe.db.set(self, "status", "Draft")
 
 	def on_submit(self):
 		self.validate_serial_no()
 		self.update_prevdoc_status()
-		self.db_set("status", "Submitted")
+		frappe.db.set(self, "status", "Submitted")
 
 	def on_cancel(self):
 		self.update_prevdoc_status()
-		self.db_set("status", "Cancelled")
+		frappe.db.set(self, "status", "Cancelled")

@@ -198,11 +198,11 @@ def setup_ageing_columns(filters: Filters, range_columns: List):
 		f"0 - {filters['range1']}",
 		f"{cint(filters['range1']) + 1} - {cint(filters['range2'])}",
 		f"{cint(filters['range2']) + 1} - {cint(filters['range3'])}",
-		_("{0} - Above").format(cint(filters["range3"]) + 1),
+		f"{cint(filters['range3']) + 1} - {_('Above')}",
 	]
 	for i, label in enumerate(ranges):
 		fieldname = "range" + str(i + 1)
-		add_column(range_columns, label=_("Age ({0})").format(label), fieldname=fieldname)
+		add_column(range_columns, label=f"Age ({label})", fieldname=fieldname)
 
 
 def add_column(

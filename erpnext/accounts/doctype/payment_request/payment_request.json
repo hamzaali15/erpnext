@@ -186,10 +186,8 @@
   {
    "fetch_from": "bank_account.bank",
    "fieldname": "bank",
-   "fieldtype": "Link",
-   "label": "Bank",
-   "options": "Bank",
-   "read_only": 1
+   "fieldtype": "Read Only",
+   "label": "Bank"
   },
   {
    "fetch_from": "bank_account.bank_account_no",
@@ -368,11 +366,10 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-09-30 16:19:43.680025",
+ "modified": "2020-09-18 12:24:14.178853",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Request",
- "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
@@ -404,6 +401,5 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC",
- "states": []
+ "sort_order": "DESC"
 }

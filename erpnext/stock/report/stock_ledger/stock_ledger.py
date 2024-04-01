@@ -6,11 +6,11 @@ import frappe
 from frappe import _
 from frappe.query_builder.functions import CombineDatetime
 from frappe.utils import cint, flt
+from pypika.terms import ExistsCriterion
 
 from erpnext.stock.doctype.inventory_dimension.inventory_dimension import get_inventory_dimensions
 from erpnext.stock.doctype.serial_no.serial_no import get_serial_nos
 from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import get_stock_balance_for
-from erpnext.stock.doctype.warehouse.warehouse import apply_warehouse_filter
 from erpnext.stock.utils import (
 	is_reposting_item_valuation_in_progress,
 	update_included_uom_in_report,
@@ -57,12 +57,6 @@ def execute(filters=None):
 
 		if sle.serial_no:
 			update_available_serial_nos(available_serial_nos, sle)
-
-		if sle.actual_qty:
-			sle["in_out_rate"] = flt(sle.stock_value_difference / sle.actual_qty, precision)
-
-		elif sle.voucher_type == "Stock Reconciliation":
-			sle["in_out_rate"] = sle.valuation_rate
 
 		data.append(sle)
 
@@ -191,18 +185,10 @@ def get_columns(filters):
 				"convertible": "rate",
 			},
 			{
-				"label": _("Avg Rate (Balance Stock)"),
+				"label": _("Valuation Rate"),
 				"fieldname": "valuation_rate",
 				"fieldtype": "Currency",
-				"width": 180,
-				"options": "Company:company:default_currency",
-				"convertible": "rate",
-			},
-			{
-				"label": _("Valuation Rate"),
-				"fieldname": "in_out_rate",
-				"fieldtype": "Currency",
-				"width": 140,
+				"width": 110,
 				"options": "Company:company:default_currency",
 				"convertible": "rate",
 			},
@@ -309,7 +295,20 @@ def get_stock_ledger_entries(filters, items):
 		if filters.get(field):
 			query = query.where(sle[field] == filters.get(field))
 
-	query = apply_warehouse_filter(query, sle, filters)
+	if warehouse := filters.get("warehouse"):
+		lft, rgt = frappe.db.get_value("Warehouse", warehouse, ["lft", "rgt"])
+
+		warehouse_table = frappe.qb.DocType("Warehouse")
+		chilren_subquery = (
+			frappe.qb.from_(warehouse_table)
+			.select(warehouse_table.name)
+			.where(
+				(warehouse_table.lft >= lft)
+				& (warehouse_table.rgt <= rgt)
+				& (warehouse_table.name == sle.warehouse)
+			)
+		)
+		query = query.where(ExistsCriterion(chilren_subquery))
 
 	return query.run(as_dict=True)
 
@@ -319,25 +318,20 @@ def get_inventory_dimension_fields():
 
 
 def get_items(filters):
-	item = frappe.qb.DocType("Item")
-	query = frappe.qb.from_(item).select(item.name)
 	conditions = []
-
-	if item_code := filters.get("item_code"):
-		conditions.append(item.name == item_code)
+	if filters.get("item_code"):
+		conditions.append("item.name=%(item_code)s")
 	else:
-		if brand := filters.get("brand"):
-			conditions.append(item.brand == brand)
-		if item_group := filters.get("item_group"):
-			if condition := get_item_group_condition(item_group, item):
-				conditions.append(condition)
+		if filters.get("brand"):
+			conditions.append("item.brand=%(brand)s")
+		if filters.get("item_group"):
+			conditions.append(get_item_group_condition(filters.get("item_group")))
 
 	items = []
 	if conditions:
-		for condition in conditions:
-			query = query.where(condition)
-		items = [r[0] for r in query.run()]
-
+		items = frappe.db.sql_list(
+			"""select name from `tabItem` item where {}""".format(" and ".join(conditions)), filters
+		)
 	return items
 
 
@@ -349,22 +343,29 @@ def get_item_details(items, sl_entries, include_uom):
 	if not items:
 		return item_details
 
-	item = frappe.qb.DocType("Item")
-	query = (
-		frappe.qb.from_(item)
-		.select(item.name, item.item_name, item.description, item.item_group, item.brand, item.stock_uom)
-		.where(item.name.isin(items))
-	)
-
+	cf_field = cf_join = ""
 	if include_uom:
-		ucd = frappe.qb.DocType("UOM Conversion Detail")
-		query = (
-			query.left_join(ucd)
-			.on((ucd.parent == item.name) & (ucd.uom == include_uom))
-			.select(ucd.conversion_factor)
+		cf_field = ", ucd.conversion_factor"
+		cf_join = (
+			"left join `tabUOM Conversion Detail` ucd on ucd.parent=item.name and ucd.uom=%s"
+			% frappe.db.escape(include_uom)
 		)
 
-	res = query.run(as_dict=True)
+	res = frappe.db.sql(
+		"""
+		select
+			item.name, item.item_name, item.description, item.item_group, item.brand, item.stock_uom {cf_field}
+		from
+			`tabItem` item
+			{cf_join}
+		where
+			item.name in ({item_codes})
+	""".format(
+			cf_field=cf_field, cf_join=cf_join, item_codes=",".join(["%s"] * len(items))
+		),
+		items,
+		as_dict=1,
+	)
 
 	for item in res:
 		item_details.setdefault(item.name, item)
@@ -408,7 +409,7 @@ def get_opening_balance(filters, columns, sl_entries):
 	)
 
 	# check if any SLEs are actually Opening Stock Reconciliation
-	for sle in list(sl_entries):
+	for sle in sl_entries:
 		if (
 			sle.get("voucher_type") == "Stock Reconciliation"
 			and sle.posting_date == filters.from_date
@@ -439,28 +440,16 @@ def get_warehouse_condition(warehouse):
 	return ""
 
 
-def get_item_group_condition(item_group, item_table=None):
+def get_item_group_condition(item_group):
 	item_group_details = frappe.db.get_value("Item Group", item_group, ["lft", "rgt"], as_dict=1)
 	if item_group_details:
-		if item_table:
-			ig = frappe.qb.DocType("Item Group")
-			return item_table.item_group.isin(
-				(
-					frappe.qb.from_(ig)
-					.select(ig.name)
-					.where(
-						(ig.lft >= item_group_details.lft)
-						& (ig.rgt <= item_group_details.rgt)
-						& (item_table.item_group == ig.name)
-					)
-				)
-			)
-		else:
-			return (
-				"item.item_group in (select ig.name from `tabItem Group` ig \
-				where ig.lft >= %s and ig.rgt <= %s and item.item_group = ig.name)"
-				% (item_group_details.lft, item_group_details.rgt)
-			)
+		return (
+			"item.item_group in (select ig.name from `tabItem Group` ig \
+			where ig.lft >= %s and ig.rgt <= %s and item.item_group = ig.name)"
+			% (item_group_details.lft, item_group_details.rgt)
+		)
+
+	return ""
 
 
 def check_inventory_dimension_filters_applied(filters) -> bool:

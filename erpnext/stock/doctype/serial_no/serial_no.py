@@ -766,13 +766,13 @@ def get_delivery_note_serial_no(item_code, qty, delivery_note):
 
 @frappe.whitelist()
 def auto_fetch_serial_number(
-	qty: int,
+	qty: float,
 	item_code: str,
 	warehouse: str,
 	posting_date: Optional[str] = None,
 	batch_nos: Optional[Union[str, List[str]]] = None,
 	for_doctype: Optional[str] = None,
-	exclude_sr_nos=None,
+	exclude_sr_nos: Optional[List[str]] = None,
 ) -> List[str]:
 
 	filters = frappe._dict({"item_code": item_code, "warehouse": warehouse})
@@ -846,15 +846,16 @@ def get_pos_reserved_serial_nos(filters):
 
 	pos_transacted_sr_nos = query.run(as_dict=True)
 
-	reserved_sr_nos = set()
-	returned_sr_nos = set()
+	reserved_sr_nos = []
+	returned_sr_nos = []
 	for d in pos_transacted_sr_nos:
 		if d.is_return == 0:
-			[reserved_sr_nos.add(x) for x in get_serial_nos(d.serial_no)]
+			reserved_sr_nos += get_serial_nos(d.serial_no)
 		elif d.is_return == 1:
-			[returned_sr_nos.add(x) for x in get_serial_nos(d.serial_no)]
+			returned_sr_nos += get_serial_nos(d.serial_no)
 
-	reserved_sr_nos = list(reserved_sr_nos - returned_sr_nos)
+	for sr_no in returned_sr_nos:
+		reserved_sr_nos.remove(sr_no)
 
 	return reserved_sr_nos
 

@@ -135,7 +135,6 @@ class AssetRepair(AccountsController):
 					"basic_rate": stock_item.valuation_rate,
 					"serial_no": stock_item.serial_no,
 					"cost_center": self.cost_center,
-					"project": self.project,
 				},
 			)
 

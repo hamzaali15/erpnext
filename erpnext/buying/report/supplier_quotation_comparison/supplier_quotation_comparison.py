@@ -16,7 +16,8 @@ def execute(filters=None):
 		return [], []
 
 	columns = get_columns(filters)
-	supplier_quotation_data = get_data(filters)
+	conditions = get_conditions(filters)
+	supplier_quotation_data = get_data(filters, conditions)
 
 	data, chart_data = prepare_data(supplier_quotation_data, filters)
 	message = get_message()
@@ -24,51 +25,50 @@ def execute(filters=None):
 	return columns, data, message, chart_data
 
 
-def get_data(filters):
-	sq = frappe.qb.DocType("Supplier Quotation")
-	sq_item = frappe.qb.DocType("Supplier Quotation Item")
-
-	query = (
-		frappe.qb.from_(sq_item)
-		.from_(sq)
-		.select(
-			sq_item.parent,
-			sq_item.item_code,
-			sq_item.qty,
-			sq_item.stock_qty,
-			sq_item.amount,
-			sq_item.uom,
-			sq_item.stock_uom,
-			sq_item.request_for_quotation,
-			sq_item.lead_time_days,
-			sq.supplier.as_("supplier_name"),
-			sq.valid_till,
-		)
-		.where(
-			(sq_item.parent == sq.name)
-			& (sq_item.docstatus < 2)
-			& (sq.company == filters.get("company"))
-			& (sq.transaction_date.between(filters.get("from_date"), filters.get("to_date")))
-		)
-		.orderby(sq.transaction_date, sq_item.item_code)
-	)
-
+def get_conditions(filters):
+	conditions = ""
 	if filters.get("item_code"):
-		query = query.where(sq_item.item_code == filters.get("item_code"))
+		conditions += " AND sqi.item_code = %(item_code)s"
 
 	if filters.get("supplier_quotation"):
-		query = query.where(sq_item.parent.isin(filters.get("supplier_quotation")))
+		conditions += " AND sqi.parent in %(supplier_quotation)s"
 
 	if filters.get("request_for_quotation"):
-		query = query.where(sq_item.request_for_quotation == filters.get("request_for_quotation"))
+		conditions += " AND sqi.request_for_quotation = %(request_for_quotation)s"
 
 	if filters.get("supplier"):
-		query = query.where(sq.supplier.isin(filters.get("supplier")))
+		conditions += " AND sq.supplier in %(supplier)s"
 
 	if not filters.get("include_expired"):
-		query = query.where(sq.status != "Expired")
+		conditions += " AND sq.status != 'Expired'"
 
-	supplier_quotation_data = query.run(as_dict=True)
+	return conditions
+
+
+def get_data(filters, conditions):
+	supplier_quotation_data = frappe.db.sql(
+		"""
+		SELECT
+			sqi.parent, sqi.item_code,
+			sqi.qty, sqi.stock_qty, sqi.amount,
+			sqi.uom, sqi.stock_uom,
+			sqi.request_for_quotation,
+			sqi.lead_time_days, sq.supplier as supplier_name, sq.valid_till
+		FROM
+			`tabSupplier Quotation Item` sqi,
+			`tabSupplier Quotation` sq
+		WHERE
+			sqi.parent = sq.name
+			AND sqi.docstatus < 2
+			AND sq.company = %(company)s
+			AND sq.transaction_date between %(from_date)s and %(to_date)s
+			{0}
+			order by sq.transaction_date, sqi.item_code""".format(
+			conditions
+		),
+		filters,
+		as_dict=1,
+	)
 
 	return supplier_quotation_data
 

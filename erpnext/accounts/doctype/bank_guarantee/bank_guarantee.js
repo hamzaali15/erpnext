@@ -43,13 +43,20 @@ frappe.ui.form.on('Bank Guarantee', {
 
 	reference_docname: function(frm) {
 		if (frm.doc.reference_docname && frm.doc.reference_doctype) {
+			let fields_to_fetch = ["grand_total"];
 			let party_field = frm.doc.reference_doctype == "Sales Order" ? "customer" : "supplier";
 
+			if (frm.doc.reference_doctype == "Sales Order") {
+				fields_to_fetch.push("project");
+			}
+
+			fields_to_fetch.push(party_field);
 			frappe.call({
-				method: "erpnext.accounts.doctype.bank_guarantee.bank_guarantee.get_voucher_details",
+				method: "erpnext.accounts.doctype.bank_guarantee.bank_guarantee.get_vouchar_detials",
 				args: {
-					"bank_guarantee_type": frm.doc.bg_type,
-					"reference_name": frm.doc.reference_docname
+					"column_list": fields_to_fetch,
+					"doctype": frm.doc.reference_doctype,
+					"docname": frm.doc.reference_docname
 				},
 				callback: function(r) {
 					if (r.message) {

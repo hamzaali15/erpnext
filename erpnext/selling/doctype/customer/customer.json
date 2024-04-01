@@ -14,35 +14,30 @@
   "naming_series",
   "salutation",
   "customer_name",
-  "customer_type",
-  "customer_group",
-  "column_break0",
-  "territory",
   "gender",
+  "default_bank_account",
+  "tax_id",
+  "tax_category",
+  "tax_withholding_category",
   "lead_name",
   "opportunity_name",
-  "account_manager",
   "image",
-  "defaults_tab",
-  "default_price_list",
-  "default_bank_account",
-  "column_break_14",
-  "default_currency",
-  "internal_customer_section",
+  "column_break0",
+  "customer_group",
+  "customer_type",
+  "territory",
+  "account_manager",
+  "so_required",
+  "dn_required",
   "is_internal_customer",
   "represents_company",
-  "column_break_70",
+  "disabled",
+  "allowed_to_transact_section",
   "companies",
-  "more_info",
-  "market_segment",
-  "industry",
-  "customer_pos_id",
-  "website",
-  "language",
-  "column_break_45",
-  "customer_details",
-  "dashboard_tab",
-  "contact_and_address_tab",
+  "currency_and_price_list",
+  "default_currency",
+  "column_break_14",
+  "default_price_list",
   "address_contacts",
   "address_html",
   "column_break1",
@@ -54,39 +49,34 @@
   "column_break_26",
   "customer_primary_address",
   "primary_address",
-  "tax_tab",
-  "taxation_section",
-  "tax_id",
-  "column_break_21",
-  "tax_category",
-  "tax_withholding_category",
-  "accounting_tab",
+  "default_receivable_accounts",
+  "accounts",
   "credit_limit_section",
   "payment_terms",
   "credit_limits",
-  "default_receivable_accounts",
-  "accounts",
-  "loyalty_points_tab",
-  "loyalty_program",
-  "column_break_54",
-  "loyalty_program_tier",
-  "sales_team_tab",
-  "sales_team",
-  "sales_team_section",
-  "default_sales_partner",
-  "column_break_66",
-  "default_commission_rate",
-  "settings_tab",
-  "so_required",
-  "dn_required",
-  "column_break_53",
+  "more_info",
+  "customer_details",
+  "column_break_45",
+  "market_segment",
+  "industry",
+  "website",
+  "language",
   "is_frozen",
-  "disabled"
+  "column_break_38",
+  "loyalty_program",
+  "loyalty_program_tier",
+  "sales_team_section_break",
+  "default_sales_partner",
+  "default_commission_rate",
+  "sales_team_section",
+  "sales_team",
+  "customer_pos_id"
  ],
  "fields": [
   {
    "fieldname": "basic_info",
    "fieldtype": "Section Break",
+   "label": "Name and Type",
    "oldfieldtype": "Section Break",
    "options": "fa fa-user"
   },
@@ -111,7 +101,6 @@
    "fieldtype": "Data",
    "in_global_search": 1,
    "label": "Customer Name",
-   "no_copy": 1,
    "oldfieldname": "customer_name",
    "oldfieldtype": "Data",
    "reqd": 1,
@@ -227,10 +216,22 @@
   },
   {
    "depends_on": "represents_company",
+   "fieldname": "allowed_to_transact_section",
+   "fieldtype": "Section Break",
+   "label": "Allowed To Transact With"
+  },
+  {
+   "depends_on": "represents_company",
    "fieldname": "companies",
    "fieldtype": "Table",
    "label": "Allowed To Transact With",
    "options": "Allowed To Transact With"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "currency_and_price_list",
+   "fieldtype": "Section Break",
+   "label": "Currency and Price List"
   },
   {
    "fieldname": "default_currency",
@@ -293,7 +294,7 @@
    "description": "Select, to make the customer searchable with these fields",
    "fieldname": "primary_address_and_contact_detail",
    "fieldtype": "Section Break",
-   "label": "Primary Address and Contact"
+   "label": "Primary Address and Contact Detail"
   },
   {
    "description": "Reselect, if the chosen contact is edited after save",
@@ -332,18 +333,20 @@
    "read_only": 1
   },
   {
+   "collapsible": 1,
    "fieldname": "default_receivable_accounts",
    "fieldtype": "Section Break",
    "label": "Default Receivable Accounts"
   },
   {
-   "description": "Mention if a non-standard receivable account",
+   "description": "Mention if non-standard receivable account",
    "fieldname": "accounts",
    "fieldtype": "Table",
-   "label": "Receivable Accounts",
+   "label": "Accounts",
    "options": "Party Account"
   },
   {
+   "collapsible": 1,
    "fieldname": "credit_limit_section",
    "fieldtype": "Section Break",
    "label": "Credit Limit and Payment Terms"
@@ -394,6 +397,12 @@
    "label": "Is Frozen"
   },
   {
+   "collapsible": 1,
+   "fieldname": "column_break_38",
+   "fieldtype": "Section Break",
+   "label": "Loyalty Points"
+  },
+  {
    "fieldname": "loyalty_program",
    "fieldtype": "Link",
    "label": "Loyalty Program",
@@ -406,6 +415,15 @@
    "label": "Loyalty Program Tier",
    "no_copy": 1,
    "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "default_sales_partner",
+   "fieldname": "sales_team_section_break",
+   "fieldtype": "Section Break",
+   "label": "Sales Partner and Commission",
+   "oldfieldtype": "Section Break",
+   "options": "fa fa-group"
   },
   {
    "fieldname": "default_sales_partner",
@@ -427,12 +445,13 @@
    "collapsible": 1,
    "collapsible_depends_on": "sales_team",
    "fieldname": "sales_team_section",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Sales Team"
   },
   {
    "fieldname": "sales_team",
    "fieldtype": "Table",
-   "label": "Sales Team",
+   "label": "Sales Team Details",
    "oldfieldname": "sales_team",
    "oldfieldtype": "Table",
    "options": "Sales Team"
@@ -478,83 +497,6 @@
    "no_copy": 1,
    "options": "Opportunity",
    "print_hide": 1
-  },
-  {
-   "fieldname": "contact_and_address_tab",
-   "fieldtype": "Tab Break",
-   "label": "Contact & Address"
-  },
-  {
-   "fieldname": "defaults_tab",
-   "fieldtype": "Section Break",
-   "label": "Defaults"
-  },
-  {
-   "fieldname": "settings_tab",
-   "fieldtype": "Tab Break",
-   "label": "Settings"
-  },
-  {
-   "collapsible": 1,
-   "collapsible_depends_on": "default_sales_partner",
-   "fieldname": "sales_team_tab",
-   "fieldtype": "Tab Break",
-   "label": "Sales Team",
-   "oldfieldtype": "Section Break",
-   "options": "fa fa-group"
-  },
-  {
-   "fieldname": "column_break_66",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_21",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "dashboard_tab",
-   "fieldtype": "Tab Break",
-   "label": "Dashboard",
-   "show_dashboard": 1
-  },
-  {
-   "fieldname": "column_break_53",
-   "fieldtype": "Column Break"
-  },
-  {
-   "collapsible": 1,
-   "fieldname": "loyalty_points_tab",
-   "fieldtype": "Section Break",
-   "label": "Loyalty Points"
-  },
-  {
-   "fieldname": "taxation_section",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "accounting_tab",
-   "fieldtype": "Tab Break",
-   "label": "Accounting"
-  },
-  {
-   "fieldname": "tax_tab",
-   "fieldtype": "Tab Break",
-   "label": "Tax"
-  },
-  {
-   "collapsible": 1,
-   "collapsible_depends_on": "is_internal_customer",
-   "fieldname": "internal_customer_section",
-   "fieldtype": "Section Break",
-   "label": "Internal Customer"
-  },
-  {
-   "fieldname": "column_break_70",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_54",
-   "fieldtype": "Column Break"
   }
  ],
  "icon": "fa fa-user",
@@ -568,7 +510,7 @@
    "link_fieldname": "party"
   }
  ],
- "modified": "2022-11-08 15:52:34.462657",
+ "modified": "2022-12-11 15:44:41.330427",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Customer",

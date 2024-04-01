@@ -132,9 +132,7 @@ class StockReconciliation(StockController):
 					key.append(row.get(field))
 
 			if key in item_warehouse_combinations:
-				self.validation_messages.append(
-					_get_msg(row_num, _("Same item and warehouse combination already entered."))
-				)
+				self.validation_messages.append(_get_msg(row_num, _("Duplicate entry")))
 			else:
 				item_warehouse_combinations.append(key)
 
@@ -230,7 +228,7 @@ class StockReconciliation(StockController):
 
 			if item.has_serial_no or item.has_batch_no:
 				has_serial_no = True
-				self.get_sle_for_serialized_items(row, sl_entries, item)
+				self.get_sle_for_serialized_items(row, sl_entries)
 			else:
 				if row.serial_no or row.batch_no:
 					frappe.throw(
@@ -282,7 +280,7 @@ class StockReconciliation(StockController):
 		if has_serial_no and sl_entries:
 			self.update_valuation_rate_for_serial_no()
 
-	def get_sle_for_serialized_items(self, row, sl_entries, item):
+	def get_sle_for_serialized_items(self, row, sl_entries):
 		from erpnext.stock.stock_ledger import get_previous_sle
 
 		serial_nos = get_serial_nos(row.serial_no)
@@ -347,9 +345,6 @@ class StockReconciliation(StockController):
 
 		if row.qty:
 			args = self.get_sle_for_items(row)
-
-			if item.has_serial_no and item.has_batch_no:
-				args["qty_after_transaction"] = row.qty
 
 			args.update(
 				{
@@ -715,8 +710,8 @@ def get_itemwise_batch(warehouse, posting_date, company, item_code=None):
 def get_stock_balance_for(
 	item_code: str,
 	warehouse: str,
-	posting_date,
-	posting_time,
+	posting_date: str,
+	posting_time: str,
 	batch_no: Optional[str] = None,
 	with_valuation_rate: bool = True,
 ):

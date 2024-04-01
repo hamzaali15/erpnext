@@ -11,7 +11,8 @@
   "mode_of_payment",
   "enabled",
   "type",
-  "accounts"
+  "accounts",
+  "woocommerce_id"
  ],
  "fields": [
   {
@@ -29,7 +30,7 @@
    "fieldtype": "Select",
    "in_standard_filter": 1,
    "label": "Type",
-   "options": "Cash\nBank\nGeneral\nPhone"
+   "options": "Cash\nBank"
   },
   {
    "fieldname": "accounts",
@@ -42,16 +43,22 @@
    "fieldname": "enabled",
    "fieldtype": "Check",
    "label": "Enabled"
+  },
+  {
+   "fieldname": "woocommerce_id",
+   "fieldtype": "Data",
+   "label": "Woocommerce id "
   }
  ],
  "icon": "fa fa-credit-card",
  "idx": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2020-09-18 17:57:23.835236",
+ "modified": "2022-11-11 18:01:54.205667",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Mode of Payment",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
@@ -73,5 +80,6 @@
  "quick_entry": 1,
  "show_name_in_global_search": 1,
  "sort_field": "modified",
- "sort_order": "ASC"
+ "sort_order": "ASC",
+ "states": []
 }

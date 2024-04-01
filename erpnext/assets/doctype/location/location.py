@@ -200,11 +200,11 @@ def get_children(doctype, parent=None, location=None, is_root=False):
 			name as value,
 			is_group as expandable
 		from
-			`tabLocation` comp
+			`tab{doctype}` comp
 		where
 			ifnull(parent_location, "")={parent}
 		""".format(
-			parent=frappe.db.escape(parent)
+			doctype=doctype, parent=frappe.db.escape(parent)
 		),
 		as_dict=1,
 	)

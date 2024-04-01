@@ -10,14 +10,12 @@
   "item_code",
   "supplier_part_no",
   "item_name",
-  "brand",
   "product_bundle",
   "fg_item",
   "fg_item_qty",
   "column_break_4",
   "schedule_date",
   "expected_delivery_date",
-  "item_group",
   "section_break_5",
   "description",
   "col_break1",
@@ -53,7 +51,6 @@
   "pricing_rules",
   "stock_uom_rate",
   "is_free_item",
-  "apply_tds",
   "section_break_29",
   "net_rate",
   "net_amount",
@@ -61,12 +58,9 @@
   "base_net_rate",
   "base_net_amount",
   "warehouse_and_reference",
-  "from_warehouse",
   "warehouse",
-  "column_break_54",
   "actual_qty",
   "company_total_stock",
-  "references_section",
   "material_request",
   "material_request_item",
   "sales_order",
@@ -79,6 +73,8 @@
   "against_blanket_order",
   "blanket_order",
   "blanket_order_rate",
+  "item_group",
+  "brand",
   "section_break_56",
   "received_qty",
   "returned_qty",
@@ -108,7 +104,8 @@
   "production_plan",
   "production_plan_item",
   "production_plan_sub_assembly_item",
-  "page_break"
+  "page_break",
+  "data_99"
  ],
  "fields": [
   {
@@ -179,6 +176,7 @@
    "label": "Description",
    "oldfieldname": "description",
    "oldfieldtype": "Small Text",
+   "print_hide": 1,
    "print_width": "300px",
    "reqd": 1,
    "width": "300px"
@@ -265,8 +263,10 @@
    "fieldtype": "Section Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "price_list_rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Price List Rate",
    "options": "currency",
    "print_hide": 1
@@ -289,16 +289,20 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "last_purchase_rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Last Purchase Rate",
    "options": "currency",
    "print_hide": 1,
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "base_price_list_rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Price List Rate (Company Currency)",
    "options": "Company:company:default_currency",
    "print_hide": 1,
@@ -309,15 +313,19 @@
    "fieldtype": "Section Break"
   },
   {
+   "allow_on_submit": 1,
    "bold": 1,
    "columns": 2,
    "fieldname": "rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "in_list_view": 1,
    "label": "Rate",
    "oldfieldname": "import_rate",
    "oldfieldtype": "Currency",
-   "options": "currency"
+   "options": "currency",
+   "print_hide": 1,
+   "print_hide_if_no_value": 1
   },
   {
    "columns": 2,
@@ -335,12 +343,16 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
+   "depends_on": "\r\n\r\n",
    "fieldname": "base_rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Rate (Company Currency)",
    "oldfieldname": "purchase_rate",
    "oldfieldtype": "Currency",
    "options": "Company:company:default_currency",
+   "permlevel": 9,
    "print_hide": 1,
    "print_width": "100px",
    "read_only": 1,
@@ -398,8 +410,10 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "base_net_rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Net Rate (Company Currency)",
    "options": "Company:company:default_currency",
    "print_hide": 1,
@@ -423,6 +437,7 @@
    "fieldname": "weight_per_unit",
    "fieldtype": "Float",
    "label": "Weight Per Unit",
+   "print_hide": 1,
    "read_only": 1
   },
   {
@@ -446,13 +461,13 @@
   {
    "fieldname": "warehouse_and_reference",
    "fieldtype": "Section Break",
-   "label": "Warehouse Settings"
+   "label": "Warehouse and Reference"
   },
   {
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Target Warehouse",
+   "label": "Warehouse",
    "oldfieldname": "warehouse",
    "oldfieldtype": "Link",
    "options": "Warehouse",
@@ -545,9 +560,11 @@
    "options": "Blanket Order"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:doc.against_blanket_order",
    "fieldname": "blanket_order_rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Blanket Order Rate",
    "no_copy": 1,
    "print_hide": 1,
@@ -648,10 +665,12 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "description": "Tax detail table fetched from item master as a string and stored in this field.\nUsed for Taxes and Charges",
    "fieldname": "item_tax_rate",
    "fieldtype": "Code",
    "hidden": 1,
+   "ignore_user_permissions": 1,
    "label": "Item Tax Rate",
    "oldfieldname": "item_tax_rate",
    "oldfieldtype": "Small Text",
@@ -752,19 +771,22 @@
    "label": "More Information"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval: doc.uom != doc.stock_uom",
    "fieldname": "stock_uom_rate",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Rate of Stock UOM",
    "no_copy": 1,
    "options": "currency",
+   "print_hide": 1,
    "read_only": 1
   },
   {
    "allow_on_submit": 1,
    "fieldname": "actual_qty",
    "fieldtype": "Float",
-   "label": "Available Qty at Target Warehouse",
+   "label": "Available Qty at Warehouse",
    "print_hide": 1,
    "read_only": 1
   },
@@ -778,7 +800,6 @@
   },
   {
    "collapsible": 1,
-   "collapsible_depends_on": "eval: doc.margin_type || doc.discount_amount",
    "fieldname": "discount_and_margin_section",
    "fieldtype": "Section Break",
    "label": "Discount and Margin"
@@ -796,12 +817,16 @@
    "fieldname": "margin_rate_or_amount",
    "fieldtype": "Float",
    "label": "Margin Rate or Amount",
-   "print_hide": 1
+   "print_hide": 1,
+   "print_hide_if_no_value": 1,
+   "report_hide": 1
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:doc.margin_type && doc.price_list_rate && doc.margin_rate_or_amount",
    "fieldname": "rate_with_margin",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Rate With Margin",
    "options": "currency",
    "print_hide": 1,
@@ -812,9 +837,11 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:doc.margin_type && doc.price_list_rate && doc.margin_rate_or_amount",
    "fieldname": "base_rate_with_margin",
    "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
    "label": "Rate With Margin (Company Currency)",
    "options": "Company:company:default_currency",
    "print_hide": 1,
@@ -875,34 +902,15 @@
    "mandatory_depends_on": "eval:parent.is_subcontracted && !parent.is_old_subcontracting_flow"
   },
   {
-   "depends_on": "eval:parent.is_internal_supplier",
-   "fieldname": "from_warehouse",
-   "fieldtype": "Link",
-   "label": "From Warehouse",
-   "options": "Warehouse"
-  },
-  {
-   "collapsible": 1,
-   "fieldname": "references_section",
-   "fieldtype": "Section Break",
-   "label": "References"
-  },
-  {
-   "fieldname": "column_break_54",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "1",
-   "fieldname": "apply_tds",
-   "fieldtype": "Check",
-   "label": "Apply TDS"
+   "fieldname": "data_99",
+   "fieldtype": "Data"
   }
  ],
  "idx": 1,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-11-29 16:47:41.364387",
+ "modified": "2023-10-24 11:50:00.329787",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order Item",

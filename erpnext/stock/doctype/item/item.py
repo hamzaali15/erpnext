@@ -4,7 +4,7 @@
 import copy
 import json
 from typing import Dict, List, Optional
-
+import requests
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -20,7 +20,7 @@ from frappe.utils import (
 	strip,
 	strip_html,
 )
-from frappe.utils.html_utils import clean_html
+from frappe.utils.html_utils import clean_html                                                  
 
 import erpnext
 from erpnext.controllers.item_variant import (
@@ -36,7 +36,7 @@ from erpnext.stock.doctype.item_default.item_default import ItemDefault
 
 class DuplicateReorderRows(frappe.ValidationError):
 	pass
-
+     
 
 class StockExistsForTemplate(frappe.ValidationError):
 	pass
@@ -71,7 +71,6 @@ class Item(Document):
 		self.name = self.item_code
 
 	def after_insert(self):
-		"""set opening stock and item price"""
 		if self.standard_rate:
 			for default in self.item_defaults or [frappe._dict()]:
 				self.add_price(default.default_price_list)
@@ -232,10 +231,10 @@ class Item(Document):
 
 	def clear_retain_sample(self):
 		if not self.has_batch_no:
-			self.retain_sample = False
+			self.retain_sample = None
 
 		if not self.retain_sample:
-			self.sample_quantity = 0
+			self.sample_quantity = None
 
 	def add_default_uom_in_conversion_factor_table(self):
 		if not self.is_new() and self.has_value_changed("stock_uom"):
@@ -644,7 +643,7 @@ class Item(Document):
 		validate_item_default_company_links(self.item_defaults)
 
 	def update_defaults_from_item_group(self):
-		"""Get defaults from Item Group"""
+		"""Get defaults 	tem Group"""
 		if self.item_defaults or not self.item_group:
 			return
 
@@ -937,24 +936,15 @@ class Item(Document):
 				"Purchase Order Item",
 				"Material Request Item",
 				"Product Bundle",
-				"BOM",
 			]
 
 		for doctype in linked_doctypes:
 			filters = {"item_code": self.name, "docstatus": 1}
 
-			if doctype in ("Product Bundle", "BOM"):
-				if doctype == "Product Bundle":
-					filters = {"new_item_code": self.name}
-					fieldname = "new_item_code as docname"
-				else:
-					filters = {"item": self.name, "docstatus": 1}
-					fieldname = "name as docname"
+			if doctype == "Product Bundle":
+				filters = {"new_item_code": self.name}
 
-				if linked_doc := frappe.db.get_value(doctype, filters, fieldname, as_dict=True):
-					return linked_doc.update({"doctype": doctype})
-
-			elif doctype in (
+			if doctype in (
 				"Purchase Invoice Item",
 				"Sales Invoice Item",
 			):

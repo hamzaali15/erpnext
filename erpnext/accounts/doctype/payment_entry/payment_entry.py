@@ -62,6 +62,7 @@ class PaymentEntry(AccountsController):
 		self.set_missing_values()
 		self.validate_payment_type()
 		self.validate_party_details()
+		self.validate_bank_accounts()
 		self.set_exchange_rate()
 		self.validate_mandatory()
 		self.validate_reference_documents()
@@ -241,6 +242,23 @@ class PaymentEntry(AccountsController):
 		if self.party:
 			if not frappe.db.exists(self.party_type, self.party):
 				frappe.throw(_("Invalid {0}: {1}").format(self.party_type, self.party))
+
+			if self.party_account and self.party_type in ("Customer", "Supplier"):
+				self.validate_account_type(
+					self.party_account, [erpnext.get_party_account_type(self.party_type)]
+				)
+
+	def validate_bank_accounts(self):
+		if self.payment_type in ("Pay", "Internal Transfer"):
+			self.validate_account_type(self.paid_from, ["Bank", "Cash"])
+
+		if self.payment_type in ("Receive", "Internal Transfer"):
+			self.validate_account_type(self.paid_to, ["Bank", "Cash"])
+
+	def validate_account_type(self, account, account_types):
+		account_type = frappe.db.get_value("Account", account, "account_type")
+		# if account_type not in account_types:
+		# 	frappe.throw(_("Account Type for {0} must be {1}").format(account, comma_or(account_types)))
 
 	def set_exchange_rate(self, ref_doc=None):
 		self.set_source_exchange_rate(ref_doc)
@@ -684,33 +702,34 @@ class PaymentEntry(AccountsController):
 		)
 
 	def validate_payment_against_negative_invoice(self):
-		if (self.payment_type != "Pay" or self.party_type != "Customer") and (
-			self.payment_type != "Receive" or self.party_type != "Supplier"
+		if (self.payment_type == "Pay" and self.party_type == "Customer") or (
+			self.payment_type == "Receive" and self.party_type == "Supplier"
 		):
-			return
 
-		total_negative_outstanding = sum(
-			abs(flt(d.outstanding_amount)) for d in self.get("references") if flt(d.outstanding_amount) < 0
-		)
-
-		paid_amount = self.paid_amount if self.payment_type == "Receive" else self.received_amount
-		additional_charges = sum(flt(d.amount) for d in self.deductions)
-
-		if not total_negative_outstanding:
-			if self.party_type == "Customer":
-				msg = _("Cannot pay to Customer without any negative outstanding invoice")
-			else:
-				msg = _("Cannot receive from Supplier without any negative outstanding invoice")
-
-			frappe.throw(msg, InvalidPaymentEntry)
-
-		elif paid_amount - additional_charges > total_negative_outstanding:
-			frappe.throw(
-				_("Paid Amount cannot be greater than total negative outstanding amount {0}").format(
-					total_negative_outstanding
-				),
-				InvalidPaymentEntry,
+			total_negative_outstanding = sum(
+				abs(flt(d.outstanding_amount)) for d in self.get("references") if flt(d.outstanding_amount) < 0
 			)
+
+			paid_amount = self.paid_amount if self.payment_type == "Receive" else self.received_amount
+			additional_charges = sum([flt(d.amount) for d in self.deductions])
+
+			if not total_negative_outstanding:
+				frappe.throw(
+					_("Cannot {0} {1} {2} without any negative outstanding invoice").format(
+						_(self.payment_type),
+						(_("to") if self.party_type == "Customer" else _("from")),
+						self.party_type,
+					),
+					InvalidPaymentEntry,
+				)
+
+			elif paid_amount - additional_charges > total_negative_outstanding:
+				frappe.throw(
+					_("Paid Amount cannot be greater than total negative outstanding amount {0}").format(
+						total_negative_outstanding
+					),
+					InvalidPaymentEntry,
+				)
 
 	def set_title(self):
 		if frappe.flags.in_import and self.title:
@@ -921,13 +940,6 @@ class PaymentEntry(AccountsController):
 			)
 
 			if not d.included_in_paid_amount:
-				if get_account_currency(payment_account) != self.company_currency:
-					if self.payment_type == "Receive":
-						exchange_rate = self.target_exchange_rate
-					elif self.payment_type in ["Pay", "Internal Transfer"]:
-						exchange_rate = self.source_exchange_rate
-					base_tax_amount = flt((tax_amount / exchange_rate), self.precision("paid_amount"))
-
 				gl_entries.append(
 					self.get_gl_dict(
 						{
@@ -976,9 +988,7 @@ class PaymentEntry(AccountsController):
 		if self.payment_type in ("Receive", "Pay") and self.party:
 			for d in self.get("references"):
 				if d.allocated_amount and d.reference_doctype in frappe.get_hooks("advance_payment_doctypes"):
-					frappe.get_doc(
-						d.reference_doctype, d.reference_name, for_update=True
-					).set_total_advance_paid()
+					frappe.get_doc(d.reference_doctype, d.reference_name).set_total_advance_paid()
 
 	def on_recurring(self, reference_doc, auto_repeat_doc):
 		self.reference_no = reference_doc.name
@@ -1023,7 +1033,7 @@ class PaymentEntry(AccountsController):
 			for fieldname in tax_fields:
 				tax.set(fieldname, 0.0)
 
-		self.paid_amount_after_tax = self.base_paid_amount
+		self.paid_amount_after_tax = self.paid_amount
 
 	def determine_exclusive_rate(self):
 		if not any(cint(tax.included_in_paid_amount) for tax in self.get("taxes")):
@@ -1042,7 +1052,7 @@ class PaymentEntry(AccountsController):
 
 			cumulated_tax_fraction += tax.tax_fraction_for_current_item
 
-		self.paid_amount_after_tax = flt(self.base_paid_amount / (1 + cumulated_tax_fraction))
+		self.paid_amount_after_tax = flt(self.paid_amount / (1 + cumulated_tax_fraction))
 
 	def calculate_taxes(self):
 		self.total_taxes_and_charges = 0.0
@@ -1065,7 +1075,7 @@ class PaymentEntry(AccountsController):
 					current_tax_amount += actual_tax_dict[tax.idx]
 
 			tax.tax_amount = current_tax_amount
-			tax.base_tax_amount = current_tax_amount
+			tax.base_tax_amount = tax.tax_amount * self.source_exchange_rate
 
 			if tax.add_deduct_tax == "Deduct":
 				current_tax_amount *= -1.0
@@ -1079,20 +1089,14 @@ class PaymentEntry(AccountsController):
 					self.get("taxes")[i - 1].total + current_tax_amount, self.precision("total", tax)
 				)
 
-			tax.base_total = tax.total
+			tax.base_total = tax.total * self.source_exchange_rate
 
 			if self.payment_type == "Pay":
-				if tax.currency != self.paid_to_account_currency:
-					self.total_taxes_and_charges += flt(current_tax_amount / self.target_exchange_rate)
-				else:
-					self.total_taxes_and_charges += current_tax_amount
-			elif self.payment_type == "Receive":
-				if tax.currency != self.paid_from_account_currency:
-					self.total_taxes_and_charges += flt(current_tax_amount / self.source_exchange_rate)
-				else:
-					self.total_taxes_and_charges += current_tax_amount
-
-			self.base_total_taxes_and_charges += tax.base_tax_amount
+				self.base_total_taxes_and_charges += flt(current_tax_amount / self.source_exchange_rate)
+				self.total_taxes_and_charges += flt(current_tax_amount / self.target_exchange_rate)
+			else:
+				self.base_total_taxes_and_charges += flt(current_tax_amount / self.target_exchange_rate)
+				self.total_taxes_and_charges += flt(current_tax_amount / self.source_exchange_rate)
 
 		if self.get("taxes"):
 			self.paid_amount_after_tax = self.get("taxes")[-1].base_total
@@ -1187,7 +1191,6 @@ def get_outstanding_reference_documents(args):
 
 	ple = qb.DocType("Payment Ledger Entry")
 	common_filter = []
-	accounting_dimensions_filter = []
 	posting_and_due_date = []
 
 	# confirm that Supplier is not blocked
@@ -1217,7 +1220,7 @@ def get_outstanding_reference_documents(args):
 	# Add cost center condition
 	if args.get("cost_center"):
 		condition += " and cost_center='%s'" % args.get("cost_center")
-		accounting_dimensions_filter.append(ple.cost_center == args.get("cost_center"))
+		common_filter.append(ple.cost_center == args.get("cost_center"))
 
 	date_fields_dict = {
 		"posting_date": ["from_posting_date", "to_posting_date"],
@@ -1243,10 +1246,19 @@ def get_outstanding_reference_documents(args):
 		posting_date=posting_and_due_date,
 		min_outstanding=args.get("outstanding_amt_greater_than"),
 		max_outstanding=args.get("outstanding_amt_less_than"),
-		accounting_dimensions=accounting_dimensions_filter,
 	)
 
 	outstanding_invoices = split_invoices_based_on_payment_terms(outstanding_invoices)
+
+	filtered_outstanding_invoices = []
+	for d in outstanding_invoices:
+		if d.get('voucher_type') == "Purchase Invoice":
+			pi = frappe.get_doc("Purchase Invoice", d.get('voucher_no'))
+			if pi.order_status == "delivered":
+				filtered_outstanding_invoices.append(d)
+
+	if len(filtered_outstanding_invoices):
+		outstanding_invoices = filtered_outstanding_invoices
 
 	for d in outstanding_invoices:
 		d["exchange_rate"] = 1
@@ -1640,7 +1652,7 @@ def get_payment_entry(
 ):
 	reference_doc = None
 	doc = frappe.get_doc(dt, dn)
-	if dt in ("Sales Order", "Purchase Order") and flt(doc.per_billed, 2) >= 99.99:
+	if dt in ("Sales Order", "Purchase Order") and flt(doc.per_billed, 2) > 0:
 		frappe.throw(_("Can only make payment against unbilled {0}").format(dt))
 
 	if not party_type:
@@ -1998,3 +2010,63 @@ def make_payment_order(source_name, target_doc=None):
 	)
 
 	return doclist
+
+
+def make_purchase_invoice(self, method):
+	if self.payment_type == "Receive" and self.party_type == "Customer":
+		for pe in self.references:
+			if pe.reference_doctype == "Sales Invoice":
+				pi_dict = []
+				if not frappe.db.exists("Purchase Invoice", {"docstatus": 1, "custom_sales_invoice": pe.reference_name}) and frappe.db.exists("Sales Invoice", {"docstatus": 1, "name": pe.reference_name}):
+					si = frappe.get_doc("Sales Invoice", {"docstatus": 1, "name": pe.reference_name})
+					for itm in si.items:
+						suppliers_list = frappe.get_all("Suppliers Detail", {"disabled": 0}, pluck="supplier")
+						item = frappe.get_doc("Item", itm.item_code)
+
+						if item.supplier_woo and item.supplier_woo in suppliers_list:
+							# Find the index of the supplier in pi_dict
+							supplier_index = next((i for i, d in enumerate(pi_dict) if item.supplier_woo in d), None)
+
+							if supplier_index is not None:
+								# Supplier already exists in pi_dict, append the item to its list
+								pi_dict[supplier_index][item.supplier_woo].append(item.item_code)
+							else:
+								# Supplier doesn't exist in pi_dict, create a new entry
+								pi_dict.append({item.supplier_woo: [item.item_code]})
+						else:
+							# Handle the case when item.supplier_woo is not in suppliers_list
+							pass  # You can add your handling logic here
+					for row in pi_dict:
+						supplier = list(row.keys())[0]  # Convert dict_keys to list and get the first (only) element
+						new_doc = frappe.new_doc("Purchase Invoice")
+						new_doc.supplier = supplier
+						new_doc.s_code = si.po_no
+						new_doc.custom_sales_invoice = si.name
+						new_doc.order_status = "delivered"
+						for d in list(row.values())[0]:
+							pr_detail = frappe.db.sql("""select pr.name as purchase_receipt, pr.posting_date, pri.purchase_order, poi.rate
+								from `tabPurchase Receipt` as pr
+								inner join `tabPurchase Receipt Item` as pri on pr.name=pri.parent
+								inner join `tabPurchase Order Item` as poi on poi.parent=pri.purchase_order and poi.item_code=pri.item_code
+								where pr.docstatus=1 and pr.status='To Bill' and is_return=0 and pri.item_code='{0}' and pr.supplier='{1}' limit 1""".format(d, supplier), as_dict=True)
+							new_doc.append("items", {
+								"item_code": d,
+								"rate": pr_detail[0].rate if pr_detail else None,
+								"purchase_order": pr_detail[0].purchase_order if pr_detail else None,
+								"purchase_receipt": pr_detail[0].purchase_receipt if pr_detail else None
+							})
+
+						new_doc.set_missing_values()
+						new_doc.insert(ignore_permissions=True)
+						new_doc.save(ignore_permissions=True)
+						new_doc.submit()
+
+
+def cancel_purchase_invoice(self, method):
+	if self.payment_type == "Receive":
+		for pe in self.references:
+			if pe.reference_doctype == "Sales Invoice" and frappe.db.exists("Purchase Invoice", {"docstatus": 1, "custom_sales_invoice": pe.reference_name}):
+				pi_list = frappe.db.get_list("Purchase Invoice", {"docstatus": 1, "custom_sales_invoice": pe.reference_name}, ignore_permissions=True)
+				for pi in pi_list:
+					pi_doc = frappe.get_doc("Purchase Invoice", pi.name)
+					pi_doc.cancel()

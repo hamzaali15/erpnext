@@ -52,7 +52,7 @@ def validate_company(company):
 	if parent_company and (not allow_account_creation_against_child_company):
 		msg = _("{} is a child company.").format(frappe.bold(company)) + " "
 		msg += _("Please import accounts against parent company or enable {} in company master.").format(
-			frappe.bold(_("Allow Account Creation Against Child Company"))
+			frappe.bold("Allow Account Creation Against Child Company")
 		)
 		frappe.throw(msg, title=_("Wrong Company"))
 
@@ -484,10 +484,6 @@ def set_default_accounts(company):
 			),
 			"default_payable_account": frappe.db.get_value(
 				"Account", {"company": company.name, "account_type": "Payable", "is_group": 0}
-			),
-			"default_provisional_account": frappe.db.get_value(
-				"Account",
-				{"company": company.name, "account_type": "Service Received But Not Billed", "is_group": 0},
 			),
 		}
 	)

@@ -87,33 +87,33 @@ erpnext.accounts.bank_reconciliation.DialogManager = class DialogManager {
 	get_dt_columns() {
 		this.columns = [
 			{
-				name: __("Document Type"),
+				name: "Document Type",
 				editable: false,
 				width: 125,
 			},
 			{
-				name: __("Document Name"),
+				name: "Document Name",
 				editable: false,
 				width: 150,
 			},
 			{
-				name: __("Reference Date"),
+				name: "Reference Date",
 				editable: false,
 				width: 120,
 			},
 			{
-				name: __("Amount"),
+				name: "Amount",
 				editable: false,
 				width: 100,
 			},
 			{
-				name: __("Party"),
+				name: "Party",
 				editable: false,
 				width: 120,
 			},
 
 			{
-				name: __("Reference Number"),
+				name: "Reference Number",
 				editable: false,
 				width: 140,
 			},
@@ -222,7 +222,7 @@ erpnext.accounts.bank_reconciliation.DialogManager = class DialogManager {
 			{
 				fieldtype: "HTML",
 				fieldname: "no_matching_vouchers",
-				options: __("<div class=\"text-muted text-center\">{0}</div>", [__("No Matching Vouchers Found")])
+				options: "<div class=\"text-muted text-center\">No Matching Vouchers Found</div>"
 			},
 			{
 				fieldtype: "Section Break",
@@ -444,7 +444,10 @@ erpnext.accounts.bank_reconciliation.DialogManager = class DialogManager {
 				vouchers: vouchers,
 			},
 			callback: (response) => {
-				const alert_string = __("Bank Transaction {0} Matched", [this.bank_transaction.name]);
+				const alert_string =
+					"Bank Transaction " +
+					this.bank_transaction.name +
+					" Matched";
 				frappe.show_alert(alert_string);
 				this.update_dt_cards(response.message);
 				this.dialog.hide();
@@ -468,7 +471,10 @@ erpnext.accounts.bank_reconciliation.DialogManager = class DialogManager {
 				cost_center: values.cost_center,
 			},
 			callback: (response) => {
-				const alert_string = __("Bank Transaction {0} added as Payment Entry", [this.bank_transaction.name]);
+				const alert_string =
+					"Bank Transaction " +
+					this.bank_transaction.name +
+					" added as Payment Entry";
 				frappe.show_alert(alert_string);
 				this.update_dt_cards(response.message);
 				this.dialog.hide();
@@ -492,7 +498,10 @@ erpnext.accounts.bank_reconciliation.DialogManager = class DialogManager {
 				second_account: values.second_account,
 			},
 			callback: (response) => {
-				const alert_string = __("Bank Transaction {0} added as Journal Entry", [this.bank_transaction.name]);
+				const alert_string =
+					"Bank Transaction " +
+					this.bank_transaction.name +
+					" added as Journal Entry";
 				frappe.show_alert(alert_string);
 				this.update_dt_cards(response.message);
 				this.dialog.hide();
@@ -511,7 +520,10 @@ erpnext.accounts.bank_reconciliation.DialogManager = class DialogManager {
 				party: values.party,
 			},
 			callback: (response) => {
-				const alert_string = __("Bank Transaction {0} updated", [this.bank_transaction.name]);
+				const alert_string =
+					"Bank Transaction " +
+					this.bank_transaction.name +
+					" updated";
 				frappe.show_alert(alert_string);
 				this.update_dt_cards(response.message);
 				this.dialog.hide();

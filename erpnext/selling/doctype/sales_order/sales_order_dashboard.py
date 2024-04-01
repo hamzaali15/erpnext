@@ -12,10 +12,7 @@ def get_data():
 			"Auto Repeat": "reference_document",
 			"Maintenance Visit": "prevdoc_docname",
 		},
-		"internal_links": {
-			"Quotation": ["items", "prevdoc_docname"],
-			"Material Request": ["items", "material_request"],
-		},
+		"internal_links": {"Quotation": ["items", "prevdoc_docname"]},
 		"transactions": [
 			{
 				"label": _("Fulfillment"),

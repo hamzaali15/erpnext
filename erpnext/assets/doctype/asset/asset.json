@@ -70,7 +70,6 @@
   "column_break_51",
   "purchase_receipt_amount",
   "default_finance_book",
-  "depr_entry_posting_status",
   "amended_from"
  ],
  "fields": [
@@ -389,7 +388,7 @@
    "in_standard_filter": 1,
    "label": "Status",
    "no_copy": 1,
-   "options": "Draft\nSubmitted\nPartially Depreciated\nFully Depreciated\nSold\nScrapped\nIn Maintenance\nOut of Order\nIssue\nReceipt\nCapitalized\nDecapitalized",
+   "options": "Draft\nSubmitted\nPartially Depreciated\nFully Depreciated\nSold\nScrapped\nIn Maintenance\nOut of Order\nIssue\nReceipt",
    "read_only": 1
   },
   {
@@ -489,16 +488,6 @@
    "fieldtype": "Int",
    "label": "Asset Quantity",
    "read_only_depends_on": "eval:!doc.is_existing_asset"
-  },
-  {
-   "fieldname": "depr_entry_posting_status",
-   "fieldtype": "Select",
-   "hidden": 1,
-   "label": "Depreciation Entry Posting Status",
-   "no_copy": 1,
-   "options": "\nSuccessful\nFailed",
-   "print_hide": 1,
-   "read_only": 1
   }
  ],
  "idx": 72,
@@ -521,7 +510,7 @@
    "link_fieldname": "asset"
   }
  ],
- "modified": "2022-12-05 16:21:30.024060",
+ "modified": "2022-07-20 10:15:12.887372",
  "modified_by": "Administrator",
  "module": "Assets",
  "name": "Asset",

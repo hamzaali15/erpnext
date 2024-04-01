@@ -45,5 +45,4 @@ def get_chart_data(data, filters):
 			"datasets": [{"name": _("Total Delivered Amount"), "values": datapoints}],
 		},
 		"type": "bar",
-		"fieldtype": "Currency",
 	}

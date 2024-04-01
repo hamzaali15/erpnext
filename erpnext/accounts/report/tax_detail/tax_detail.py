@@ -234,11 +234,8 @@ def modify_report_columns(doctype, field, column):
 		if field in ["item_tax_rate", "base_net_amount"]:
 			return None
 
-	if doctype == "GL Entry":
-		if field in ["debit", "credit"]:
-			column.update({"label": _("Amount"), "fieldname": "amount"})
-		elif field == "voucher_type":
-			column.update({"fieldtype": "Data", "options": ""})
+	if doctype == "GL Entry" and field in ["debit", "credit"]:
+		column.update({"label": _("Amount"), "fieldname": "amount"})
 
 	if field == "taxes_and_charges":
 		column.update({"label": _("Taxes and Charges Template")})

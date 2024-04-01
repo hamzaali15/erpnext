@@ -37,7 +37,7 @@ def make_custom_fields():
 			fieldname="vat_section",
 			label="VAT Details",
 			fieldtype="Section Break",
-			insert_after="language",
+			insert_after="group_same_items",
 			print_hide=1,
 			collapsible=1,
 		),

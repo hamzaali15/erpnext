@@ -15,7 +15,18 @@
   "naming_series",
   "item_code",
   "item_name",
+  "cost",
+  "sale_price",
   "item_group",
+  "category_product",
+  "brand_product",
+  "regular_price",
+  "color",
+  "sku",
+  "seller_sku",
+  "cost_center",
+  "supplier_woo",
+  "woocommerce_status",
   "stock_uom",
   "column_break0",
   "disabled",
@@ -119,7 +130,9 @@
   "default_item_manufacturer",
   "default_manufacturer_part_no",
   "published_in_website",
-  "total_projected_qty"
+  "total_projected_qty",
+  "created_via",
+  "delivery_driver"
  ],
  "fields": [
   {
@@ -137,7 +150,6 @@
    "label": "Item Code",
    "oldfieldname": "item_code",
    "oldfieldtype": "Data",
-   "reqd": 1,
    "unique": 1
   },
   {
@@ -150,8 +162,7 @@
    "label": "Variant Of",
    "options": "Item",
    "read_only": 1,
-   "search_index": 1,
-   "set_only_once": 1
+   "search_index": 1
   },
   {
    "bold": 1,
@@ -228,6 +239,8 @@
   },
   {
    "depends_on": "is_stock_item",
+   "fetch_from": "variant_of.cost",
+   "fetch_if_empty": 1,
    "fieldname": "valuation_rate",
    "fieldtype": "Currency",
    "label": "Valuation Rate"
@@ -795,7 +808,7 @@
   },
   {
    "fieldname": "customer_code",
-   "fieldtype": "Small Text",
+   "fieldtype": "Data",
    "hidden": 1,
    "label": "Customer Code",
    "no_copy": 1,
@@ -903,6 +916,77 @@
    "fieldname": "accounting",
    "fieldtype": "Tab Break",
    "label": "Accounting"
+  },
+  {
+   "fieldname": "category_product",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Category"
+  },
+  {
+   "fieldname": "brand_product",
+   "fieldtype": "Data",
+   "label": "Brand "
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Data",
+   "label": "Color"
+  },
+  {
+   "fieldname": "sku",
+   "fieldtype": "Data",
+   "label": "SKU",
+   "unique": 1
+  },
+  {
+   "fieldname": "seller_sku",
+   "fieldtype": "Data",
+   "label": "Seller SKU"
+  },
+  {
+   "fieldname": "woocommerce_status",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "WooCommerce status"
+  },
+  {
+   "fieldname": "created_via",
+   "fieldtype": "Data",
+   "label": "created via"
+  },
+  {
+   "fieldname": "regular_price",
+   "fieldtype": "Data",
+   "label": "Regular price"
+  },
+  {
+   "fieldname": "supplier_woo",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "supplier",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "sale_price",
+   "fieldtype": "Float",
+   "label": "Sale Price"
+  },
+  {
+   "fieldname": "cost",
+   "fieldtype": "Currency",
+   "label": "Cost"
+  },
+  {
+   "fieldname": "delivery_driver",
+   "fieldtype": "Data",
+   "label": " Delivery Driver"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
   }
  ],
  "icon": "fa fa-tag",
@@ -910,8 +994,7 @@
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "make_attachments_public": 1,
- "modified": "2022-09-13 04:08:17.431731",
+ "modified": "2023-07-06 20:21:36.692072",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",

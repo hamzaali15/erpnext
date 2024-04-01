@@ -86,7 +86,7 @@ def get_fiscal_years(
 				)
 			)
 
-		query = query.orderby(FY.year_start_date, order=Order.desc)
+		query = query.orderby(FY.year_start_date, Order.desc)
 		fiscal_years = query.run(as_dict=True)
 
 		frappe.cache().hset("fiscal_years", company, fiscal_years)
@@ -460,6 +460,10 @@ def reconcile_against_document(args):  # nosemgrep
 
 		frappe.flags.ignore_party_validation = False
 
+		if entry.voucher_type in ("Payment Entry", "Journal Entry"):
+			if hasattr(doc, "update_expense_claim"):
+				doc.update_expense_claim()
+
 
 def check_if_advance_entry_modified(args):
 	"""
@@ -644,16 +648,6 @@ def unlink_ref_doc_from_payment_entries(ref_doc):
 		(now(), frappe.session.user, ref_doc.doctype, ref_doc.name),
 	)
 
-	ple = qb.DocType("Payment Ledger Entry")
-
-	qb.update(ple).set(ple.against_voucher_type, ple.voucher_type).set(
-		ple.against_voucher_no, ple.voucher_no
-	).set(ple.modified, now()).set(ple.modified_by, frappe.session.user).where(
-		(ple.against_voucher_type == ref_doc.doctype)
-		& (ple.against_voucher_no == ref_doc.name)
-		& (ple.delinked == 0)
-	).run()
-
 	if ref_doc.doctype in ("Sales Invoice", "Purchase Invoice"):
 		ref_doc.set("advances", [])
 
@@ -836,7 +830,6 @@ def get_outstanding_invoices(
 	posting_date=None,
 	min_outstanding=None,
 	max_outstanding=None,
-	accounting_dimensions=None,
 ):
 
 	ple = qb.DocType("Payment Ledger Entry")
@@ -867,7 +860,6 @@ def get_outstanding_invoices(
 		min_outstanding=min_outstanding,
 		max_outstanding=max_outstanding,
 		get_invoices=True,
-		accounting_dimensions=accounting_dimensions or [],
 	)
 
 	for d in invoice_list:
@@ -1045,7 +1037,7 @@ def update_cost_center(docname, cost_center_name, cost_center_number, company, m
 
 	frappe.db.set_value("Cost Center", docname, "cost_center_name", cost_center_name.strip())
 
-	new_name = get_autoname_with_number(cost_center_number, cost_center_name, company)
+	new_name = get_autoname_with_number(cost_center_number, cost_center_name, docname, company)
 	if docname != new_name:
 		frappe.rename_doc("Cost Center", docname, new_name, force=1, merge=merge)
 		return new_name
@@ -1068,14 +1060,16 @@ def validate_field_number(doctype_name, docname, number_value, company, field_na
 			)
 
 
-def get_autoname_with_number(number_value, doc_title, company):
+def get_autoname_with_number(number_value, doc_title, name, company):
 	"""append title with prefix as number and suffix as company's abbreviation separated by '-'"""
-	company_abbr = frappe.get_cached_value("Company", company, "abbr")
-	parts = [doc_title.strip(), company_abbr]
-
+	if name:
+		name_split = name.split("-")
+		parts = [doc_title.strip(), name_split[len(name_split) - 1].strip()]
+	else:
+		abbr = frappe.get_cached_value("Company", company, ["abbr"], as_dict=True)
+		parts = [doc_title.strip(), abbr.abbr]
 	if cstr(number_value).strip():
 		parts.insert(0, cstr(number_value).strip())
-
 	return " - ".join(parts)
 
 
@@ -1148,10 +1142,10 @@ def repost_gle_for_stock_vouchers(
 				if not existing_gle or not compare_existing_and_expected_gle(
 					existing_gle, expected_gle, precision
 				):
-					_delete_accounting_ledger_entries(voucher_type, voucher_no)
+					_delete_gl_entries(voucher_type, voucher_no)
 					voucher_obj.make_gl_entries(gl_entries=expected_gle, from_repost=True)
 			else:
-				_delete_accounting_ledger_entries(voucher_type, voucher_no)
+				_delete_gl_entries(voucher_type, voucher_no)
 
 		if not frappe.flags.in_test:
 			frappe.db.commit()
@@ -1163,26 +1157,12 @@ def repost_gle_for_stock_vouchers(
 			)
 
 
-def _delete_pl_entries(voucher_type, voucher_no):
-	ple = qb.DocType("Payment Ledger Entry")
-	qb.from_(ple).delete().where(
-		(ple.voucher_type == voucher_type) & (ple.voucher_no == voucher_no)
-	).run()
-
-
 def _delete_gl_entries(voucher_type, voucher_no):
-	gle = qb.DocType("GL Entry")
-	qb.from_(gle).delete().where(
-		(gle.voucher_type == voucher_type) & (gle.voucher_no == voucher_no)
-	).run()
-
-
-def _delete_accounting_ledger_entries(voucher_type, voucher_no):
-	"""
-	Remove entries from both General and Payment Ledger for specified Voucher
-	"""
-	_delete_gl_entries(voucher_type, voucher_no)
-	_delete_pl_entries(voucher_type, voucher_no)
+	frappe.db.sql(
+		"""delete from `tabGL Entry`
+		where voucher_type=%s and voucher_no=%s""",
+		(voucher_type, voucher_no),
+	)
 
 
 def sort_stock_vouchers_by_posting_date(
@@ -1380,8 +1360,9 @@ def check_and_delete_linked_reports(report):
 			frappe.delete_doc("Desktop Icon", icon)
 
 
-def get_payment_ledger_entries(gl_entries, cancel=0):
-	ple_map = []
+def create_payment_ledger_entry(
+	gl_entries, cancel=0, adv_adj=0, update_outstanding="Yes", from_repost=0
+):
 	if gl_entries:
 		ple = None
 
@@ -1421,57 +1402,44 @@ def get_payment_ledger_entries(gl_entries, cancel=0):
 					dr_or_cr *= -1
 					dr_or_cr_account_currency *= -1
 
-				ple = frappe._dict(
-					doctype="Payment Ledger Entry",
-					posting_date=gle.posting_date,
-					company=gle.company,
-					account_type=account_type,
-					account=gle.account,
-					party_type=gle.party_type,
-					party=gle.party,
-					cost_center=gle.cost_center,
-					finance_book=gle.finance_book,
-					due_date=gle.due_date,
-					voucher_type=gle.voucher_type,
-					voucher_no=gle.voucher_no,
-					against_voucher_type=gle.against_voucher_type
-					if gle.against_voucher_type
-					else gle.voucher_type,
-					against_voucher_no=gle.against_voucher if gle.against_voucher else gle.voucher_no,
-					account_currency=gle.account_currency,
-					amount=dr_or_cr,
-					amount_in_account_currency=dr_or_cr_account_currency,
-					delinked=True if cancel else False,
-					remarks=gle.remarks,
+				ple = frappe.get_doc(
+					{
+						"doctype": "Payment Ledger Entry",
+						"posting_date": gle.posting_date,
+						"company": gle.company,
+						"account_type": account_type,
+						"account": gle.account,
+						"party_type": gle.party_type,
+						"party": gle.party,
+						"cost_center": gle.cost_center,
+						"finance_book": gle.finance_book,
+						"due_date": gle.due_date,
+						"voucher_type": gle.voucher_type,
+						"voucher_no": gle.voucher_no,
+						"against_voucher_type": gle.against_voucher_type
+						if gle.against_voucher_type
+						else gle.voucher_type,
+						"against_voucher_no": gle.against_voucher if gle.against_voucher else gle.voucher_no,
+						"account_currency": gle.account_currency,
+						"amount": dr_or_cr,
+						"amount_in_account_currency": dr_or_cr_account_currency,
+						"delinked": True if cancel else False,
+						"remarks": gle.remarks,
+					}
 				)
 
 				dimensions_and_defaults = get_dimensions()
 				if dimensions_and_defaults:
 					for dimension in dimensions_and_defaults[0]:
-						ple[dimension.fieldname] = gle.get(dimension.fieldname)
+						ple.set(dimension.fieldname, gle.get(dimension.fieldname))
 
-				ple_map.append(ple)
-	return ple_map
-
-
-def create_payment_ledger_entry(
-	gl_entries, cancel=0, adv_adj=0, update_outstanding="Yes", from_repost=0
-):
-	if gl_entries:
-		ple_map = get_payment_ledger_entries(gl_entries, cancel=cancel)
-
-		for entry in ple_map:
-
-			ple = frappe.get_doc(entry)
-
-			if cancel:
-				delink_original_entry(ple)
-
-			ple.flags.ignore_permissions = 1
-			ple.flags.adv_adj = adv_adj
-			ple.flags.from_repost = from_repost
-			ple.flags.update_outstanding = update_outstanding
-			ple.submit()
+				if cancel:
+					delink_original_entry(ple)
+				ple.flags.ignore_permissions = 1
+				ple.flags.adv_adj = adv_adj
+				ple.flags.from_repost = from_repost
+				ple.flags.update_outstanding = update_outstanding
+				ple.submit()
 
 
 def update_voucher_outstanding(voucher_type, voucher_no, account, party_type, party):
@@ -1491,12 +1459,7 @@ def update_voucher_outstanding(voucher_type, voucher_no, account, party_type, pa
 
 	# on cancellation outstanding can be an empty list
 	voucher_outstanding = ple_query.get_voucher_outstandings(vouchers, common_filter=common_filter)
-	if (
-		voucher_type in ["Sales Invoice", "Purchase Invoice", "Fees"]
-		and party_type
-		and party
-		and voucher_outstanding
-	):
+	if voucher_type in ["Sales Invoice", "Purchase Invoice", "Fees"] and voucher_outstanding:
 		outstanding = voucher_outstanding[0]
 		ref_doc = frappe.get_doc(voucher_type, voucher_no)
 
@@ -1617,7 +1580,6 @@ class QueryPaymentLedger(object):
 			.where(ple.delinked == 0)
 			.where(Criterion.all(filter_on_voucher_no))
 			.where(Criterion.all(self.common_filter))
-			.where(Criterion.all(self.dimensions_filter))
 			.where(Criterion.all(self.voucher_posting_date))
 			.groupby(ple.voucher_type, ple.voucher_no, ple.party_type, ple.party)
 		)
@@ -1705,7 +1667,6 @@ class QueryPaymentLedger(object):
 		max_outstanding=None,
 		get_payments=False,
 		get_invoices=False,
-		accounting_dimensions=None,
 	):
 		"""
 		Fetch voucher amount and outstanding amount from Payment Ledger using Database CTE
@@ -1721,7 +1682,6 @@ class QueryPaymentLedger(object):
 		self.reset()
 		self.vouchers = vouchers
 		self.common_filter = common_filter or []
-		self.dimensions_filter = accounting_dimensions or []
 		self.voucher_posting_date = posting_date or []
 		self.min_outstanding = min_outstanding
 		self.max_outstanding = max_outstanding

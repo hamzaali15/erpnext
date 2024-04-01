@@ -6,7 +6,6 @@ import frappe
 from frappe import ValidationError, _, msgprint
 from frappe.contacts.doctype.address.address import get_address_display
 from frappe.utils import cint, cstr, flt, getdate
-from frappe.utils.data import nowtime
 
 from erpnext.accounts.doctype.budget.budget import validate_expense_against_budget
 from erpnext.accounts.party import get_party_details
@@ -41,7 +40,6 @@ class BuyingController(SubcontractingController):
 		self.validate_from_warehouse()
 		self.set_supplier_address()
 		self.validate_asset_return()
-		self.validate_auto_repeat_subscription_dates()
 
 		if self.doctype == "Purchase Invoice":
 			self.validate_purchase_receipt_if_update_stock()
@@ -195,16 +193,16 @@ class BuyingController(SubcontractingController):
 
 		if self.meta.get_field("base_in_words"):
 			if self.meta.get_field("base_rounded_total") and not self.is_rounded_total_disabled():
-				amount = abs(self.base_rounded_total)
+				amount = self.base_rounded_total
 			else:
-				amount = abs(self.base_grand_total)
+				amount = self.base_grand_total
 			self.base_in_words = money_in_words(amount, self.company_currency)
 
 		if self.meta.get_field("in_words"):
 			if self.meta.get_field("rounded_total") and not self.is_rounded_total_disabled():
-				amount = abs(self.rounded_total)
+				amount = self.rounded_total
 			else:
-				amount = abs(self.grand_total)
+				amount = self.grand_total
 
 			self.in_words = money_in_words(amount, self.currency)
 
@@ -291,16 +289,12 @@ class BuyingController(SubcontractingController):
 				# Get outgoing rate based on original item cost based on valuation method
 
 				if not d.get(frappe.scrub(ref_doctype)):
-					posting_time = self.get("posting_time")
-					if not posting_time and self.doctype == "Purchase Order":
-						posting_time = nowtime()
-
 					outgoing_rate = get_incoming_rate(
 						{
 							"item_code": d.item_code,
 							"warehouse": d.get("from_warehouse"),
 							"posting_date": self.get("posting_date") or self.get("transation_date"),
-							"posting_time": posting_time,
+							"posting_time": self.get("posting_time"),
 							"qty": -1 * flt(d.get("stock_qty")),
 							"serial_no": d.get("serial_no"),
 							"batch_no": d.get("batch_no"),
@@ -314,26 +308,20 @@ class BuyingController(SubcontractingController):
 
 					rate = flt(outgoing_rate * (d.conversion_factor or 1), d.precision("rate"))
 				else:
-					field = "incoming_rate" if self.get("is_internal_supplier") else "rate"
-					rate = flt(
-						frappe.db.get_value(ref_doctype, d.get(frappe.scrub(ref_doctype)), field)
-						* (d.conversion_factor or 1),
-						d.precision("rate"),
-					)
+					rate = frappe.db.get_value(ref_doctype, d.get(frappe.scrub(ref_doctype)), "rate")
 
 				if self.is_internal_transfer():
-					if self.doctype == "Purchase Receipt" or self.get("update_stock"):
-						if rate != d.rate:
-							d.rate = rate
-							frappe.msgprint(
-								_(
-									"Row {0}: Item rate has been updated as per valuation rate since its an internal stock transfer"
-								).format(d.idx),
-								alert=1,
-							)
-						d.discount_percentage = 0.0
-						d.discount_amount = 0.0
-						d.margin_rate_or_amount = 0.0
+					if rate != d.rate:
+						d.rate = rate
+						frappe.msgprint(
+							_(
+								"Row {0}: Item rate has been updated as per valuation rate since its an internal stock transfer"
+							).format(d.idx),
+							alert=1,
+						)
+					d.discount_percentage = 0.0
+					d.discount_amount = 0.0
+					d.margin_rate_or_amount = 0.0
 
 	def validate_for_subcontracting(self):
 		if self.is_subcontracted and self.get("is_old_subcontracting_flow"):

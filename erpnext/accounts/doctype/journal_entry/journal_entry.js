@@ -173,8 +173,8 @@ frappe.ui.form.on("Journal Entry", {
 var update_jv_details = function(doc, r) {
 	$.each(r, function(i, d) {
 		var row = frappe.model.add_child(doc, "Journal Entry Account", "accounts");
-		frappe.model.set_value(row.doctype, row.name, "account", d.account)
-		frappe.model.set_value(row.doctype, row.name, "balance", d.balance)
+		row.account = d.account;
+		row.balance = d.balance;
 	});
 	refresh_field("accounts");
 }
@@ -253,6 +253,9 @@ erpnext.accounts.JournalEntry = class JournalEntry extends frappe.ui.form.Contro
 				var party_account_field = jvd.reference_type==="Sales Invoice" ? "debit_to": "credit_to";
 				out.filters.push([jvd.reference_type, party_account_field, "=", jvd.account]);
 
+				if (in_list(['Debit Note', 'Credit Note'], doc.voucher_type)) {
+					out.filters.push([jvd.reference_type, "is_return", "=", 1]);
+				}
 			}
 
 			if(in_list(["Sales Order", "Purchase Order"], jvd.reference_type)) {
@@ -309,7 +312,8 @@ erpnext.accounts.JournalEntry = class JournalEntry extends frappe.ui.form.Contro
 		}
 	}
 
-	get_outstanding(doctype, docname, company, child) {
+	get_outstanding(doctype, docname, company, child, due_date) {
+		var me = this;
 		var args = {
 			"doctype": doctype,
 			"docname": docname,

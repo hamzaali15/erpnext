@@ -131,17 +131,6 @@
    "type": "Link"
   },
   {
-   "dependencies": "Asset",
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Asset Capitalization",
-   "link_count": 0,
-   "link_to": "Asset Capitalization",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
    "hidden": 0,
    "is_query_report": 0,
    "label": "Reports",
@@ -183,16 +172,21 @@
    "type": "Link"
   }
  ],
- "modified": "2021-10-04 12:15:54.839454",
+ "modified": "2022-12-08 17:48:57.875209",
  "modified_by": "Administrator",
  "module": "Assets",
  "name": "Assets",
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,
+ "quick_lists": [],
  "restrict_to_domain": "",
- "roles": [],
- "sequence_id": 4.0,
+ "roles": [
+  {
+   "role": "Administrator"
+  }
+ ],
+ "sequence_id": 3.0,
  "shortcuts": [
   {
    "label": "Asset",

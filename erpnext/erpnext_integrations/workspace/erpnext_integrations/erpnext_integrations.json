@@ -90,16 +90,21 @@
    "type": "Link"
   }
  ],
- "modified": "2022-01-13 17:35:35.508718",
+ "modified": "2022-12-08 17:49:00.287530",
  "modified_by": "Administrator",
  "module": "ERPNext Integrations",
  "name": "ERPNext Integrations",
  "owner": "Administrator",
- "parent_page": "",
+ "parent_page": "Support",
  "public": 1,
+ "quick_lists": [],
  "restrict_to_domain": "",
- "roles": [],
- "sequence_id": 10.0,
+ "roles": [
+  {
+   "role": "Administrator"
+  }
+ ],
+ "sequence_id": 16.0,
  "shortcuts": [],
  "title": "ERPNext Integrations"
 }

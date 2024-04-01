@@ -146,9 +146,7 @@ class ImportSupplierInvoice(Document):
 
 	def publish(self, title, message, count, total):
 		frappe.publish_realtime(
-			"import_invoice_update",
-			{"title": title, "message": message, "count": count, "total": total},
-			user=self.modified_by,
+			"import_invoice_update", {"title": title, "message": message, "count": count, "total": total}
 		)
 
 

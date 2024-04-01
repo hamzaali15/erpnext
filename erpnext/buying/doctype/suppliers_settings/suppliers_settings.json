@@ -1,0 +1,43 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-10-02 21:06:40.068269",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "suppliers_detail"
+ ],
+ "fields": [
+  {
+   "fieldname": "suppliers_detail",
+   "fieldtype": "Table",
+   "label": "Suppliers Detail",
+   "options": "Suppliers Detail",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2023-10-02 21:08:21.907573",
+ "modified_by": "Administrator",
+ "module": "Buying",
+ "name": "Suppliers Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
