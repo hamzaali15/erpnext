@@ -36,8 +36,9 @@ class PaymentEntryCreationTool(Document):
 				frappe.msgprint('The File extension should be CSV or XLSX type.', 'Invalid File')
 				return
 			frappe.msgprint("Payment Entry is Creating in the background")
-			create_payment_entries(self)
-			# frappe.enqueue(create_payment_entries, self=self, queue="long")
+			# create_payment_entries(self)
+			frappe.enqueue(method=create_payment_entries, self=self, queue="long", timeout=36000, is_async=True)
+			# frappe.enqueue(method=application_map_data, type=type, json_data=json_data, queue="default", timeout=36000, is_async=True, job_name=job_name,job_id=job_name,)
 			
 		else:
 			frappe.msgprint('The File does not exist.', 'Invalid File')
