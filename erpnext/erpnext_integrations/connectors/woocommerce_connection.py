@@ -6,7 +6,7 @@ import time
 from frappe import publish_progress
 from erpnext.utilities.bulk_transaction import transaction_processing
 import frappe
-from erpnext.accounts.doctype.payment_entry.test_payment_entry import get_payment_entry
+from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry
 from frappe.utils import cstr
 import requests
 import copy
