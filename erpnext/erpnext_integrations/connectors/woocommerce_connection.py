@@ -612,11 +612,11 @@ def link_items(items_list, woocommerce_settings, sys_lang):
 			
 @frappe.whitelist(allow_guest=True)
 def link_items_int(items_list, woocommerce_settings, sys_lang,orderId):
-	items_int,items_anker,items_shik,item_chicco,item_un,item_milion,item_hakem,item_nyx,item_ser,item_agar,item_hn,item_mid,item_de,item_gm,item_lnc,item_alw,item_laa=[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+	items_int,items_anker,items_shik,item_chicco,item_un,item_milion,item_hakem,item_nyx,item_ser,item_agar,item_hn,item_mid,item_de,item_gm,item_lnc,item_alw,item_laa,item_gseb=[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
 	for item_data in items_list:
 		item_woo_com_id = item_data.get("sku").replace("'", "")
 		if not frappe.db.exists("Item", {"sku": item_woo_com_id}):
-			# and ( item_data.get("seller_id") == 33329 or item_data.get("seller_id") == 29264 or item_data.get("seller_id") == 24628 or item_data.get("seller_id") == 26005 or item_data.get("seller_id") == 31146 or item_data.get("seller_id") == 28114 or item_data.get("seller_id") == 29631 or item_data.get("seller_id") == 31174 or item_data.get("seller_id") == 28519 or item_data.get("seller_id") == 31217 or item_data.get("seller_id") == 1579 or item_data.get("seller_id") == 22508):
+			# and ( item_data.get("seller_id") == 33329 or item_data.get("seller_id") == 29264 or item_data.get("seller_id") == 24628 or item_data.get("seller_id") == 26005 or item_data.get("seller_id") == 31146 or item_data.get("seller_id") == 28114 or item_data.get("seller_id") == 29631 or item_data.get("seller_id") == 31174 or item_data.get("seller_id") == 28519 or item_data.get("seller_id") == 31217 or item_data.get("seller_id") == 1579 or item_data.get("seller_id") == 22508) or item_data.get("seller_id") == 45159):
 			# Create Item -by rawan item_data.get("seller_id") == 28047 or 2117821178 33329 30977
 			item = frappe.new_doc("Item")
 			#item.cost_center=cost.name
@@ -686,7 +686,9 @@ def link_items_int(items_list, woocommerce_settings, sys_lang,orderId):
 		if(item_data.get("seller_id") == 29264):
 		    item= frappe.get_doc("Item", {"sku": item_woo_com_id})
 		    item_de.append({'item_code': item.item_code , 'qty':item_data.get("quantity") ,'rate':item_data.get("cost")})
-		
+		if(item_data.get("seller_id") == 45159):
+		    item= frappe.get_doc("Item", {"sku": item_woo_com_id})
+		    item_gseb.append({'item_code': item.item_code , 'qty':item_data.get("quantity") ,'rate':item_data.get("cost")})
 
 	if items_int is not None and items_int != []:
 	    po = create_purchase_order(items_int,'baahy international', orderId)
@@ -748,6 +750,10 @@ def link_items_int(items_list, woocommerce_settings, sys_lang,orderId):
 	#    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
 	if item_de is not None and item_de != []:
 	    po = create_purchase_order(item_de,'Decakila Libya',orderId)
+#	    transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+	#    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
+	if item_gseb is not None and item_gseb != []:
+	    po = create_purchase_order(item_gseb,'GSEB',orderId)
 #	    transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
 	#    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
 @frappe.whitelist()
@@ -971,9 +977,9 @@ def change_status(checked_items, status):
 				else:
 					salesOrder = frappe.get_doc("Sales Order", {"woocommerce_id":order.get('woocommerce_id'),"docstatus":1})
 				name = salesOrder.name
-				myObj = {"id": woocommerce_id,"status":status}
+				myObj = {'id': woocommerce_id, 'status': status}
 				publish_progress(percent=progress, title="Creating Payment Entry")
-				json_data= requests.post(url , json=myObj , headers={"Content-Type":"application/json"})
+				json_data= requests.post(url, json=myObj, headers={'Content-Type': 'application/json'})
 				salesOrder.woocommerce_status = status
 				salesOrder.last_edit = today() 
 				salesOrder.save()
