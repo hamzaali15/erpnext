@@ -1444,7 +1444,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Order Status",
-   "options": "pending\npaid\nconfirmed-local\ncancelled\nrefunded\nout_for_delivery\nvanex\ndelivered\nfulfilled_order\ninterfulfilled\nreturn_to_stock\nitem_out_of_stock\nuser_returnd\nconfirmed\nint-conf\nwc-processing\nwc-dvr-to-cstm\nerror\ncompleted\nprocessing_new"
+   "options": "pending\npaid\nconfirmed-local\ncancelled\nrefunded\nout_for_delivery\nvanex\ndelivered\nfulfilled_order\ninterfulfilled\nreturn_to_stock\nitem_out_of_stock\nuser_returnd\nconfirmed\nint-conf\nwc-processing\ndvr-to-cstm\nerror\ncompleted\nprocessing_new"
   },
   {
    "fieldname": "data_167",

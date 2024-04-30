@@ -182,7 +182,7 @@ def updateOrder():
 	customer_name = raw_billing_data.get("first_name") + " " + raw_billing_data.get("last_name")
 	link_customer_and_address(raw_billing_data, raw_shipping_data, customer_name)
 	update_sales_order(order, woocommerce_settings, customer_name, sys_lang)
-	if order.get("status") == "wc-processing" or order.get("status") == "wc-dvr-to-cstm" or order.get("status") == "processing":
+	if order.get("status") == "wc-processing" or order.get("status") == "dvr-to-cstm" or order.get("status") == "processing":
 		updateItems(order)
 	if order.get("status") == "fulfilled_order" :
 		order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
@@ -462,7 +462,7 @@ def _order(*args, **kwargs):
 		    customer_name = raw_billing_data.get("first_name") + " " + raw_billing_data.get("last_name")
 		    link_customer_and_address(raw_billing_data, raw_shipping_data, customer_name)
 		    update_sales_order(order, woocommerce_settings, customer_name, sys_lang)
-		    if order.get("status") == "wc-processing" or order.get("status") == "wc-dvr-to-cstm" or order.get("status") == "processing":
+		    if order.get("status") == "wc-processing" or order.get("status") == "dvr-to-cstm" or order.get("status") == "processing":
 		        updateItems(order)
 		    if order.get("status") == "fulfilled_order" :
 		        order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
