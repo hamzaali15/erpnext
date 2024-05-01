@@ -7,7 +7,7 @@ frappe.listview_settings['Sales Order'] = {
 		} else if(doc.woocommerce_status=="wc-processing"){
 			return [__("Pending Confirmation"), "yellow"]
 		} else if(doc.woocommerce_status=="dvr-to-cstm"){
-			return [__("Deliver to customer status"), "brown"]
+			return [__("Deliver to customer status"), "purple"]
 		} else if (doc.woocommerce_status =="item_out_of_stock"){
 			return [__("Item Out Of Stock"), "gray", "woocommerce_status,=,item_out_of_stock"];
 		} else if (doc.woocommerce_status =="confirmed"){

@@ -252,6 +252,16 @@ def updateOrder():
         order1.save()
         order1.reload()
 
+        if frappe.db.exists(
+            "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
+        ):
+            order2 = frappe.get_doc(
+                "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
+            )
+            order2.status = "Deliver to customer status"
+            order2.save()
+            order2.reload()
+
     if frappe.db.exists(
         "Sales Order", {"woocommerce_id": order.get("id"), "docstatus": 1}
     ):
@@ -663,6 +673,17 @@ def _order(*args, **kwargs):
                 order1.woocommerce_status = order.get("status")
                 order1.save()
                 order1.reload()
+
+                if frappe.db.exists(
+                    "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
+                ):
+                    order2 = frappe.get_doc(
+                        "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
+                    )
+                    order2.status = "Deliver to customer status"
+                    order2.save()
+                    order2.reload()
+
         after_sync(order.get("id"), order.get("status"))
 
 
