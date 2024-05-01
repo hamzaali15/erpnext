@@ -107,6 +107,7 @@
   "section_break_49",
   "apply_discount_on",
   "is_cash_or_non_trade_discount",
+  "order_status",
   "base_discount_amount",
   "additional_discount_account",
   "column_break_51",
@@ -1656,7 +1657,7 @@
    "label": "Status",
    "length": 30,
    "no_copy": 1,
-   "options": "\nDraft\nReturn\nCredit Note Issued\nSubmitted\nPaid\nPartly Paid\nUnpaid\nUnpaid and Discounted\nPartly Paid and Discounted\nOverdue and Discounted\nOverdue\nCancelled\nInternal Transfer\nDeliver to customer status",
+   "options": "\nDraft\nReturn\nCredit Note Issued\nSubmitted\nPaid\nPartly Paid\nUnpaid\nUnpaid and Discounted\nPartly Paid and Discounted\nOverdue and Discounted\nOverdue\nCancelled\nInternal Transfer",
    "print_hide": 1,
    "read_only": 1
   },
@@ -2016,6 +2017,16 @@
    "fieldname": "is_cash_or_non_trade_discount",
    "fieldtype": "Check",
    "label": "Is Cash or Non Trade Discount"
+  },
+  {
+    "allow_on_submit": 1,
+    "fieldname": "order_status",
+    "fieldtype": "Select",
+    "in_filter": 1,
+    "in_list_view": 1,
+    "in_standard_filter": 1,
+    "label": "Order Status",
+    "options": "pending\npaid\nconfirmed-local\ncancelled\nrefunded\nout_for_delivery\nvanex\ndelivered\nfulfilled_order\ninterfulfilled\nreturn_to_stock\nitem_out_of_stock\nuser_returnd\nconfirmed\nint-conf\nwc-processing\ndvr-to-cstm\nerror\ncompleted\nprocessing_new"
   },
   {
    "fieldname": "mode_of_payment",

@@ -237,6 +237,15 @@ def updateOrder():
             transaction_processing(
                 [{"name": order1.name}], "Delivery Note", "Sales Invoice"
             )
+            if frappe.db.exists(
+                "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
+            ):
+                order2 = frappe.get_doc(
+                    "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
+                )
+                order2.order_status = order.get("status")
+                order2.save()
+                order2.reload()
         else:
             order1 = frappe.get_doc(
                 "Sales Order", {"woocommerce_id": order.get("id"), "docstatus": 1}
@@ -251,16 +260,6 @@ def updateOrder():
         order1.woocommerce_status = order.get("status")
         order1.save()
         order1.reload()
-
-        if frappe.db.exists(
-            "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
-        ):
-            order2 = frappe.get_doc(
-                "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
-            )
-            order2.status = "Deliver to customer status"
-            order2.save()
-            order2.reload()
 
     if frappe.db.exists(
         "Sales Order", {"woocommerce_id": order.get("id"), "docstatus": 1}
@@ -385,6 +384,16 @@ def afterProc():
             transaction_processing(
                 [{"name": order1.name}], "Delivery Note", "Sales Invoice"
             )
+            if frappe.db.exists(
+                "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
+            ):
+                order2 = frappe.get_doc(
+                    "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
+                )
+                order2.order_status = order.get("status")
+                order2.save()
+                order2.reload()
+
         else:
             order1 = frappe.get_doc(
                 "Sales Order", {"woocommerce_id": order.get("id"), "docstatus": 1}
@@ -399,6 +408,15 @@ def afterProc():
             transaction_processing(
                 [{"name": order2.name}], "Delivery Note", "Sales Invoice"
             )
+            if frappe.db.exists(
+                "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
+            ):
+                order2 = frappe.get_doc(
+                    "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
+                )
+                order2.order_status = order.get("status")
+                order2.save()
+                order2.reload()
     if order.get("status") == "delivered":
         doc = frappe.get_doc("Sales Invoice", {"po_no": order.get("id")})
         payment_entry = get_payment_entry(doc.doctype, doc.name)
@@ -601,6 +619,15 @@ def _order(*args, **kwargs):
                 transaction_processing(
                     [{"name": order2.name}], "Delivery Note", "Sales Invoice"
                 )
+                if frappe.db.exists(
+                    "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
+                ):
+                    order2 = frappe.get_doc(
+                        "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
+                    )
+                    order2.order_status = order.get("status")
+                    order2.save()
+                    order2.reload()
         else:
             updateItems(order)
             addItem(order)
@@ -666,6 +693,15 @@ def _order(*args, **kwargs):
                     transaction_processing(
                         [{"name": order1.name}], "Delivery Note", "Sales Invoice"
                     )
+                    if frappe.db.exists(
+                        "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
+                    ):
+                        order2 = frappe.get_doc(
+                            "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
+                        )
+                        order2.order_status = order.get("status")
+                        order2.save()
+                        order2.reload()
             if order.get("status") == "dvr-to-cstm":
                 order1 = frappe.get_doc(
                     "Sales Order", {"woocommerce_id": order.get("id"), "docstatus": 1}
@@ -673,16 +709,6 @@ def _order(*args, **kwargs):
                 order1.woocommerce_status = order.get("status")
                 order1.save()
                 order1.reload()
-
-                if frappe.db.exists(
-                    "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
-                ):
-                    order2 = frappe.get_doc(
-                        "Sales Invoice", {"po_no": order.get("id"), "docstatus": 1}
-                    )
-                    order2.status = "Deliver to customer status"
-                    order2.save()
-                    order2.reload()
 
         after_sync(order.get("id"), order.get("status"))
 
