@@ -195,12 +195,13 @@ def updateOrder():
 		order1.reload()
 	if order.get("status") == "dvr-to-cstm":
 		order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
-		order1.woocommerce_status = "dvr-to-cstm"
-		order1.save()
-		order1.reload()
+		order1.db_set("woocommerce_status", order.get("status"))
+		frappe.db.commit()
 
 	if frappe.db.exists("Sales Order",{"woocommerce_id": order.get('id'),"docstatus":1}):
 		after_sync(order.get('id'), order.get("status"))
+
+
 # function update order 
 @frappe.whitelist()		
 def updateItems(order):
@@ -476,9 +477,9 @@ def _order(*args, **kwargs):
 					transaction_processing([{"name": order1.name}],  "Delivery Note", "Sales Invoice")
 			if order.get("status") == "dvr-to-cstm":
 				order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
-				order1.woocommerce_status = "dvr-to-cstm"
-				order1.save()
-				order1.reload()
+				order1.db_set("woocommerce_status", order.get("status"))
+				frappe.db.commit()
+
 		after_sync(order.get('id'), order.get("status"))
 
 
