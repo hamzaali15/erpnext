@@ -163,6 +163,7 @@ def verify_request():
 		frappe.throw(_("Unverified Webhook Data"))
 	frappe.set_user(woocommerce_settings.creation_user)
 
+
 # function update order 
 @frappe.whitelist()
 def updateOrder():
@@ -174,37 +175,42 @@ def updateOrder():
 		order = frappe.request.data
 	sys_lang = frappe.get_single("System Settings").language or "en"
 	if frappe.db.exists("Sales Order",{"woocommerce_id": order.get('id'),"docstatus":1}):
-	    order_pending = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
-	    if order_pending.woocommerce_status == "pending" or  order_pending.woocommerce_status == "error":
-	        return frappe.throw(title="Error",msg="Order still in pending status please make sure all products available",exc=FileNotFoundError)
+		order_pending = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
+		if order_pending.woocommerce_status == "pending" or  order_pending.woocommerce_status == "error":
+			return frappe.throw(title="Error",msg="Order still in pending status please make sure all products available",exc=FileNotFoundError)
 	raw_billing_data = order.get("billing")
 	raw_shipping_data = order.get("shipping")
 	customer_name = raw_billing_data.get("first_name") + " " + raw_billing_data.get("last_name")
 	link_customer_and_address(raw_billing_data, raw_shipping_data, customer_name)
 	update_sales_order(order, woocommerce_settings, customer_name, sys_lang)
-	if order.get("status") == "wc-processing" or order.get("status") == "dvr-to-cstm" or order.get("status") == "processing":
+	if order.get("status") == "wc-processing" or order.get("status") == "processing":
 		updateItems(order)
 	if order.get("status") == "fulfilled_order" :
 		order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
 		transaction_processing([{"name": order1.name}],  "Sales Order", "Delivery Note")
 	if order.get("status") == "cancelled" or order.get("status") == "refunded" : 
-	    updateItems(order)
-	    if frappe.db.exists("Sales Order",{"woocommerce_id": order.get('id'),"docstatus":1}):
-	        exists = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
-	        if exists.docstatus.is_submitted():
-	            exists.cancel()
+		updateItems(order)
+		if frappe.db.exists("Sales Order",{"woocommerce_id": order.get('id'),"docstatus":1}):
+			exists = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
+			if exists.docstatus.is_submitted():
+				exists.cancel()
 	if order.get("status") == "out_for_delivery" or order.get("status") == 'vanex':
-	   if frappe.db.exists("Delivery Note", {"po_no": order.get('id')}):
-	            order1 = frappe.get_doc("Delivery Note", {"po_no": order.get('id'),"docstatus":1})
-	            transaction_processing([{"name": order1.name}],  "Delivery Note", "Sales Invoice")
-	   else:
-            order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
-            order1.woocommerce_status = "error"
-            order1.save()
-            order1.reload()
-	     
+		if frappe.db.exists("Delivery Note", {"po_no": order.get('id')}):
+			order1 = frappe.get_doc("Delivery Note", {"po_no": order.get('id'),"docstatus":1})
+			transaction_processing([{"name": order1.name}],  "Delivery Note", "Sales Invoice")
+	else:
+		order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
+		order1.woocommerce_status = "error"
+		order1.save()
+		order1.reload()
+	if order.get("status") == "dvr-to-cstm":
+		order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
+		order1.woocommerce_status = "dvr-to-cstm"
+		order1.save()
+		order1.reload()
+
 	if frappe.db.exists("Sales Order",{"woocommerce_id": order.get('id'),"docstatus":1}):
-	    after_sync(order.get('id'), order.get("status"))
+		after_sync(order.get('id'), order.get("status"))
 # function update order 
 @frappe.whitelist()		
 def updateItems(order):
@@ -446,46 +452,52 @@ def _order(*args, **kwargs):
 		#	link_items(order.get("line_items"), woocommerce_settings, sys_lang)
 			create_sales_order(order, woocommerce_settings, customer_email, sys_lang ,payment_method_title)
 			if order.get("status") == "fulfilled_order" :
-			    order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
-			    transaction_processing([{"name": order1.name}],  "Sales Order", "Delivery Note")
+				order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
+				transaction_processing([{"name": order1.name}],  "Sales Order", "Delivery Note")
 			if order.get("status") == "out_for_delivery" or order.get("status") == "vanex" or order.get("status") == "user_returnd":
-			    order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
-			    transaction_processing([{"name": order1.name}],  "Sales Order", "Delivery Note")
-			    order2 = frappe.get_doc("Delivery Note", {"po_no": order.get('id')})
-			    transaction_processing([{"name": order2.name}],  "Delivery Note", "Sales Invoice")
+				order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
+				transaction_processing([{"name": order1.name}],  "Sales Order", "Delivery Note")
+				order2 = frappe.get_doc("Delivery Note", {"po_no": order.get('id')})
+				transaction_processing([{"name": order2.name}],  "Delivery Note", "Sales Invoice")
 		else: 
-		    updateItems(order)
-		    addItem(order)
-		    sys_lang = frappe.get_single("System Settings").language or "en"
-		    raw_billing_data = order.get("billing")
-		    raw_shipping_data = order.get("shipping")
-		    customer_name = raw_billing_data.get("first_name") + " " + raw_billing_data.get("last_name")
-		    link_customer_and_address(raw_billing_data, raw_shipping_data, customer_name)
-		    update_sales_order(order, woocommerce_settings, customer_name, sys_lang)
-		    if order.get("status") == "wc-processing" or order.get("status") == "dvr-to-cstm" or order.get("status") == "processing":
-		        updateItems(order)
-		    if order.get("status") == "fulfilled_order" :
-		        order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
-		        transaction_processing([{"name": order1.name}],  "Sales Order", "Delivery Note")
-		    if order.get("status") == "cancelled" or order.get("status") == "refunded" :
-		        if frappe.db.exists("Sales Invoice", {"po_no": order.get('id')}):
-		            delivery = frappe.get_doc("Sales Invoice", {"po_no": order.get('id')})
-		            if delivery.docstatus.is_submitted():
-		                delivery.cancel()
-		            if frappe.db.exists("Delivery Note", {"po_no": order.get('id'),"docstatus":1}):
-		                delivery = frappe.get_doc("Delivery Note", {"po_no": order.get('id'),"docstatus":1})
-		                if delivery.docstatus.is_submitted():
-		                    delivery.cancel()			
-		            if frappe.db.exists("Sales Order",{"woocommerce_id": order.get('id'),"docstatus":1}):
-		                exists = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
-		                if exists.docstatus.is_submitted():
-		                    exists.cancel()
-		    if order.get("status") == "out_for_delivery" or order.get("status") == 'vanex':
-		      if frappe.db.exists("Delivery Note", {"po_no": order.get('id'),"docstatus":1}):
-		          order1 = frappe.get_doc("Delivery Note", {"po_no": order.get('id'),"docstatus":1})
-		          transaction_processing([{"name": order1.name}],  "Delivery Note", "Sales Invoice")
+			updateItems(order)
+			addItem(order)
+			sys_lang = frappe.get_single("System Settings").language or "en"
+			raw_billing_data = order.get("billing")
+			raw_shipping_data = order.get("shipping")
+			customer_name = raw_billing_data.get("first_name") + " " + raw_billing_data.get("last_name")
+			link_customer_and_address(raw_billing_data, raw_shipping_data, customer_name)
+			update_sales_order(order, woocommerce_settings, customer_name, sys_lang)
+			if order.get("status") == "wc-processing" or order.get("status") == "processing":
+				updateItems(order)
+			if order.get("status") == "fulfilled_order" :
+				order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
+				transaction_processing([{"name": order1.name}],  "Sales Order", "Delivery Note")
+			if order.get("status") == "cancelled" or order.get("status") == "refunded" :
+				if frappe.db.exists("Sales Invoice", {"po_no": order.get('id')}):
+					delivery = frappe.get_doc("Sales Invoice", {"po_no": order.get('id')})
+					if delivery.docstatus.is_submitted():
+						delivery.cancel()
+					if frappe.db.exists("Delivery Note", {"po_no": order.get('id'),"docstatus":1}):
+						delivery = frappe.get_doc("Delivery Note", {"po_no": order.get('id'),"docstatus":1})
+						if delivery.docstatus.is_submitted():
+							delivery.cancel()			
+					if frappe.db.exists("Sales Order",{"woocommerce_id": order.get('id'),"docstatus":1}):
+						exists = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
+						if exists.docstatus.is_submitted():
+							exists.cancel()
+			if order.get("status") == "out_for_delivery" or order.get("status") == 'vanex':
+				if frappe.db.exists("Delivery Note", {"po_no": order.get('id'),"docstatus":1}):
+					order1 = frappe.get_doc("Delivery Note", {"po_no": order.get('id'),"docstatus":1})
+					transaction_processing([{"name": order1.name}],  "Delivery Note", "Sales Invoice")
+			if order.get("status") == "dvr-to-cstm":
+				order1 = frappe.get_doc("Sales Order", {"woocommerce_id": order.get('id'),"docstatus":1})
+				order1.woocommerce_status = "dvr-to-cstm"
+				order1.save()
+				order1.reload()
 		after_sync(order.get('id'), order.get("status"))
-			            
+
+
 def check_mode_payment(name):
 	if not frappe.db.exists("Mode of Payment", {"woocommerce_id": name.strip()}) :
 		mode_payment=frappe.new_doc("Mode of Payment")
