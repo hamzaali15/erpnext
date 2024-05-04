@@ -1354,146 +1354,161 @@ def update_sales_order(order, woocommerce_settings, customer_name, sys_lang):
 
 @frappe.whitelist(allow_guest=True)
 def change_status(checked_items, status):
-    if isinstance(checked_items, str):
-        deserialized_data = json.loads(checked_items)
-    else:
-        deserialized_data = checked_items
-    company_details = get_company_defaults("baahy.com")
-    if status == "payment_entry":
-        counter = 0
-        size = len(deserialized_data)
+    try:
+        if isinstance(checked_items, str):
+            deserialized_data = json.loads(checked_items)
+        else:
+            deserialized_data = checked_items
+        company_details = get_company_defaults("baahy.com")
+        if status == "payment_entry":
+            counter = 0
+            size = len(deserialized_data)
 
-        for order in deserialized_data:
-            try:
-                if frappe.db.exists("Sales Invoice", {"po_no": order.get("po_no")}):
-                    doc = frappe.get_doc("Sales Invoice", {"po_no": order.get("po_no")})
-                    woocommerce_id = order.get("po_no")
-                else:
-                    doc = frappe.get_doc(
-                        "Sales Invoice", {"po_no": order.get("woocommerce_id")}
-                    )
-                    woocommerce_id = order.get("woocommerce_id")
-                    sync_order_status_pi(woocommerce_id)
-                progress = counter / size * 100
-                payment_entry = get_payment_entry(doc.doctype, doc.name)
-                payment_entry.flags.ignore_mandatory = True
-                payment_entry.reference_no = doc.name
-                payment_entry.reference_date = nowdate()
-                payment_entry.po_no = woocommerce_id
-                payment_entry.cost_center = company_details.cost_center
-                payment_entry.submit()
-                frappe.db.commit()
-                counter = counter + 1
-                url = "https://baahy.com/wp-json/api/gibran_user/erp_sync_status"
-                status = "delivered"
+            for order in deserialized_data:
+                try:
+                    if frappe.db.exists("Sales Invoice", {"po_no": order.get("po_no")}):
+                        doc = frappe.get_doc(
+                            "Sales Invoice", {"po_no": order.get("po_no")}
+                        )
+                        woocommerce_id = order.get("po_no")
+                    else:
+                        doc = frappe.get_doc(
+                            "Sales Invoice", {"po_no": order.get("woocommerce_id")}
+                        )
+                        woocommerce_id = order.get("woocommerce_id")
+                        sync_order_status_pi(woocommerce_id)
+                    progress = counter / size * 100
+                    payment_entry = get_payment_entry(doc.doctype, doc.name)
+                    payment_entry.flags.ignore_mandatory = True
+                    payment_entry.reference_no = doc.name
+                    payment_entry.reference_date = nowdate()
+                    payment_entry.po_no = woocommerce_id
+                    payment_entry.cost_center = company_details.cost_center
+                    payment_entry.submit()
+                    frappe.db.commit()
+                    counter = counter + 1
+                    url = "https://wordpress-1204933-4422673.cloudwaysapps.com/wp-json/api/gibran_user/erp_sync_status"
+                    # url = "https://baahy.com/wp-json/api/gibran_user/erp_sync_status"
+                    status = "delivered"
 
-                if frappe.db.exists(
-                    "Sales Order",
-                    {"woocommerce_id": order.get("po_no"), "docstatus": 1},
-                ):
-                    salesOrder = frappe.get_doc(
+                    if frappe.db.exists(
                         "Sales Order",
                         {"woocommerce_id": order.get("po_no"), "docstatus": 1},
+                    ):
+                        salesOrder = frappe.get_doc(
+                            "Sales Order",
+                            {"woocommerce_id": order.get("po_no"), "docstatus": 1},
+                        )
+                    else:
+                        salesOrder = frappe.get_doc(
+                            "Sales Order",
+                            {
+                                "woocommerce_id": order.get("woocommerce_id"),
+                                "docstatus": 1,
+                            },
+                        )
+                    myObj = {"id": woocommerce_id, "status": status}
+                    publish_progress(percent=progress, title="Creating Payment Entry")
+                    json_data = requests.post(
+                        url, json=myObj, headers={"Content-Type": "application/json"}
                     )
-                else:
-                    salesOrder = frappe.get_doc(
-                        "Sales Order",
-                        {"woocommerce_id": order.get("woocommerce_id"), "docstatus": 1},
-                    )
-                myObj = {"id": woocommerce_id, "status": status}
-                publish_progress(percent=progress, title="Creating Payment Entry")
+                    salesOrder.woocommerce_status = status
+                    salesOrder.last_edit = today()
+                    salesOrder.save()
+                    # frappe.db.sql(f"""UPDATE  `tabSales Order` SET `woocommerce_status` = '{status}' WHERE `tabSales Order`.`name` = '{name}';""")
+                except ValueError:
+                    counter = counter - 1
+            frappe.msgprint(
+                _(f"{counter} Payment Entry Created successfully"), alert=True
+            )
+            return counter
+
+        # transaction_processing([{"name": payment.name}],  "Sales Invoice", "Payment Entry")
+        for order in deserialized_data:
+            woocommerce_id = order.get("woocommerce_id")
+            statusOrder = order.get("woocommerce_status")
+            if (statusOrder == "confirmed" and status == "item_out_of_stock") or (
+                statusOrder == "confirmed" and status == "fulfilled_order"
+            ):
+                url = "https://wordpress-1204933-4422673.cloudwaysapps.com/wp-json/api/gibran_user/erp_sync_status"
+                # url = "https://baahy.com/wp-json/api/gibran_user/erp_sync_status"
+                myObj = {
+                    "id": woocommerce_id,
+                    "status": status,
+                }
                 json_data = requests.post(
                     url, json=myObj, headers={"Content-Type": "application/json"}
                 )
-                salesOrder.woocommerce_status = status
-                salesOrder.last_edit = today()
-                salesOrder.save()
-                # frappe.db.sql(f"""UPDATE  `tabSales Order` SET `woocommerce_status` = '{status}' WHERE `tabSales Order`.`name` = '{name}';""")
-            except ValueError:
-                counter = counter - 1
-        frappe.msgprint(_(f"{counter} Payment Entry Created successfully"), alert=True)
-        return counter
-
-    # transaction_processing([{"name": payment.name}],  "Sales Invoice", "Payment Entry")
-    for order in deserialized_data:
-        woocommerce_id = order.get("woocommerce_id")
-        statusOrder = order.get("woocommerce_status")
-        if (statusOrder == "confirmed" and status == "item_out_of_stock") or (
-            statusOrder == "confirmed" and status == "fulfilled_order"
-        ):
-            url = "https://baahy.com/wp-json/api/gibran_user/erp_sync_status"
-            myObj = {
-                "id": woocommerce_id,
-                "status": status,
-            }
-            json_data = requests.post(
-                url, json=myObj, headers={"Content-Type": "application/json"}
-            )
-            sale_order = frappe.get_doc(
-                "Sales Order", {"woocommerce_id": woocommerce_id, "docstatus": 1}
-            )
-            sale_order.woocommerce_status = status
-            sale_order.last_edit = today()
-            sale_order.save()
-        elif statusOrder == "return_to_stock" and status == "cancelled":
-            myObj = {
-                "id": woocommerce_id,
-                "status": status,
-            }
-            updateItems(myObj)
-            if frappe.db.exists(
-                "Sales Order", {"woocommerce_id": woocommerce_id, "docstatus": 1}
-            ):
-                exists = frappe.get_doc(
+                sale_order = frappe.get_doc(
                     "Sales Order", {"woocommerce_id": woocommerce_id, "docstatus": 1}
                 )
-                exists.woocommerce_status = status
-                exists.last_edit = today()
-                exists.save()
-                exists.reload()
-                if exists.docstatus.is_submitted():
-                    exists.cancel()
-                    frappe.db.commit()
-            if frappe.db.exists(
-                "Purchase Receipt", {"s_code": woocommerce_id, "docstatus": 1}
-            ):
-                purchase_receipt = frappe.get_doc(
+                sale_order.woocommerce_status = status
+                sale_order.last_edit = today()
+                sale_order.save()
+            elif statusOrder == "return_to_stock" and status == "cancelled":
+                myObj = {
+                    "id": woocommerce_id,
+                    "status": status,
+                }
+                updateItems(myObj)
+                if frappe.db.exists(
+                    "Sales Order", {"woocommerce_id": woocommerce_id, "docstatus": 1}
+                ):
+                    exists = frappe.get_doc(
+                        "Sales Order",
+                        {"woocommerce_id": woocommerce_id, "docstatus": 1},
+                    )
+                    exists.woocommerce_status = status
+                    exists.last_edit = today()
+                    exists.save()
+                    exists.reload()
+                    if exists.docstatus.is_submitted():
+                        exists.cancel()
+                        frappe.db.commit()
+                if frappe.db.exists(
                     "Purchase Receipt", {"s_code": woocommerce_id, "docstatus": 1}
+                ):
+                    purchase_receipt = frappe.get_doc(
+                        "Purchase Receipt", {"s_code": woocommerce_id, "docstatus": 1}
+                    )
+                    purchase_receipt.cancel()
+                    purchase_order = frappe.get_doc(
+                        "Purchase Order", {"s_code": woocommerce_id, "docstatus": 1}
+                    )
+                    purchase_order.cancel()
+                    frappe.db.commit()
+                url = "https://wordpress-1204933-4422673.cloudwaysapps.com/wp-json/api/gibran_user/erp_sync_status"
+                # url = "https://baahy.com/wp-json/api/gibran_user/erp_sync_status"
+                json_data = requests.post(
+                    url, json=myObj, headers={"Content-Type": "application/json"}
                 )
-                purchase_receipt.cancel()
-                purchase_order = frappe.get_doc(
-                    "Purchase Order", {"s_code": woocommerce_id, "docstatus": 1}
+            elif statusOrder == "delivered" and status == "completed":
+                url = "https://wordpress-1204933-4422673.cloudwaysapps.com/wp-json/api/gibran_user/erp_sync_status"
+                # url = "https://baahy.com/wp-json/api/gibran_user/erp_sync_status"
+                myObj = {
+                    "id": woocommerce_id,
+                    "status": status,
+                }
+                json_data = requests.post(
+                    url, json=myObj, headers={"Content-Type": "application/json"}
                 )
-                purchase_order.cancel()
-                frappe.db.commit()
-            url = "https://baahy.com/wp-json/api/gibran_user/erp_sync_status"
-            json_data = requests.post(
-                url, json=myObj, headers={"Content-Type": "application/json"}
-            )
-        elif statusOrder == "delivered" and status == "completed":
-            url = "https://baahy.com/wp-json/api/gibran_user/erp_sync_status"
-            myObj = {
-                "id": woocommerce_id,
-                "status": status,
-            }
-            json_data = requests.post(
-                url, json=myObj, headers={"Content-Type": "application/json"}
-            )
-            sale_order = frappe.get_doc(
-                "Sales Order", {"woocommerce_id": woocommerce_id, "docstatus": 1}
-            )
-            sale_order.woocommerce_status = status
-            sale_order.last_edit = today()
-            sale_order.save()
+                sale_order = frappe.get_doc(
+                    "Sales Order", {"woocommerce_id": woocommerce_id, "docstatus": 1}
+                )
+                sale_order.woocommerce_status = status
+                sale_order.last_edit = today()
+                sale_order.save()
 
-            frappe.db.commit()
-        else:
-            frappe.throw(
-                _(
-                    f"You are not allowed to change the order status from {statusOrder} to {status} "
+                frappe.db.commit()
+            else:
+                frappe.throw(
+                    _(
+                        f"You are not allowed to change the order status from {statusOrder} to {status} "
+                    )
                 )
-            )
-    frappe.db.commit()
+        frappe.db.commit()
+    except Exception as e:
+        frappe.log_error(e)
 
 
 def sync_order_status_pi(order_id):
@@ -1520,7 +1535,8 @@ def after_sync(order_id, order_status, page=""):
     if frappe.db.exists("Purchase Invoice", {"s_code": order_id}):
         sync_order_status_pi(order_id)
 
-    url = "https://baahy.com/wp-json/api/gibran_user/erpnext_sync_done"
+    url = "https://wordpress-1204933-4422673.cloudwaysapps.com/wp-json/api/gibran_user/erpnext_sync_done"
+    # url = "https://baahy.com/wp-json/api/gibran_user/erpnext_sync_done"
     body = {
         "order_id": order_id,
     }
@@ -2177,8 +2193,13 @@ def updateErrors():
     for id in ids:
         if frappe.db.exists("Sales Order", {"woocommerce_id": id, "docstatus": 1}):
             myObj = {"id": id}
+            # json_data = requests.post(
+            #     "https://baahy.com/wp-json/api/gibran_user/erpnext_sync_error",
+            #     json=myObj,
+            #     headers={"Content-Type": "application/json"},
+            # )
             json_data = requests.post(
-                "https://baahy.com/wp-json/api/gibran_user/erpnext_sync_error",
+                "https://wordpress-1204933-4422673.cloudwaysapps.com/wp-json/api/gibran_user/erpnext_sync_error",
                 json=myObj,
                 headers={"Content-Type": "application/json"},
             )
