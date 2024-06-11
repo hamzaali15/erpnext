@@ -6,7 +6,8 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "suppliers_detail"
+  "suppliers_detail",
+  "external_suppliers"
  ],
  "fields": [
   {
@@ -15,12 +16,18 @@
    "label": "Suppliers Detail",
    "options": "Suppliers Detail",
    "reqd": 1
+  },
+  {
+   "fieldname": "external_suppliers",
+   "fieldtype": "Table",
+   "label": "External Suppliers",
+   "options": "External Suppliers"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-10-02 21:08:21.907573",
+ "modified": "2024-06-11 07:16:12.680700",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Suppliers Settings",
