@@ -858,326 +858,428 @@ def link_items(items_list, woocommerce_settings, sys_lang):
 
 @frappe.whitelist(allow_guest=True)
 def link_items_int(items_list, woocommerce_settings, sys_lang, orderId):
-    suppliers_list = frappe.get_all("External Suppliers", {"disabled": 0}, ["seller_id", "supplier"])
-    item_dict = {
-        supplier['seller_id']: {
-            'supplier_name': supplier['supplier'],
-            'items': []
-        } for supplier in suppliers_list
-    }
-
+    (
+        items_int,
+        items_anker,
+        items_shik,
+        item_chicco,
+        item_un,
+        item_milion,
+        item_hakem,
+        item_nyx,
+        item_ser,
+        item_agar,
+        item_hn,
+        item_mid,
+        item_de,
+        item_gm,
+        item_lnc,
+        item_alw,
+        item_laa,
+        item_gseb,
+        item_shafaq,
+        item_nasamat,
+        item_rinas,
+        item_rinasp,
+        item_mfcphilips,
+        item_alhashan,
+        item_alfaelectric,
+        item_danacosmetics,
+        item_weqayamedicals,
+        item_berlingerhaus,
+    ) = (
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+    )
     for item_data in items_list:
         item_woo_com_id = item_data.get("sku").replace("'", "")
-
-        # Check if the item already exists
         if not frappe.db.exists("Item", {"sku": item_woo_com_id}):
+            # and ( item_data.get("seller_id") == 33329 or item_data.get("seller_id") == 29264 or item_data.get("seller_id") == 24628 or item_data.get("seller_id") == 26005 or item_data.get("seller_id") == 31146 or item_data.get("seller_id") == 28114 or item_data.get("seller_id") == 29631 or item_data.get("seller_id") == 31174 or item_data.get("seller_id") == 28519 or item_data.get("seller_id") == 31217 or item_data.get("seller_id") == 1579 or item_data.get("seller_id") == 22508) or item_data.get("seller_id") == 45159) or item_data.get("seller_id") == 46333):
+            # Create Item -by rawan item_data.get("seller_id") == 28047 or 2117821178 33329 30977
             item = frappe.new_doc("Item")
+            # item.cost_center=cost.name
             item.sku = item_woo_com_id
             item.item_code = item_woo_com_id
             item.stock_uom = woocommerce_settings.uom or _("Nos", sys_lang)
             item.regular_price = item_data.get("subtotal")
-            item.item_group = woo_cat(item_data.get("categories"), item)
-            item.item_name = (item_data.get("name")[:75] + "..") if len(item_data.get("name")) > 75 else item_data.get("name")
+            lisw = woo_cat(item_data.get("categories"), item)
+            item.item_group = lisw
+            data = item_data.get("name")
+            info = (data[:75] + "..") if len(data) > 75 else data
+            item.item_name = info
             item.woocommerce_id = item_woo_com_id
-
             if frappe.db.exists("Supplier", {"id_woo": item_data.get("seller_id")}):
-                supplier = frappe.get_doc("Supplier", {"id_woo": item_data.get("seller_id")})
+                supplier = frappe.get_doc(
+                    "Supplier", {"id_woo": item_data.get("seller_id")}
+                )
                 item.supplier_woo = supplier.name
-
-            if frappe.db.exists("Cost Center", {"woocommerce_id": item_data.get("seller_id")}):
-                cost = frappe.get_doc("Cost Center", {"woocommerce_id": item_data.get("seller_id")})
+            if frappe.db.exists(
+                "Cost Center", {"woocommerce_id": item_data.get("seller_id")}
+            ):
+                cost = frappe.get_doc(
+                    "Cost Center", {"woocommerce_id": item_data.get("seller_id")}
+                )
                 item.cost_center = cost.name
-                
             item.flags.ignore_mandatory = True
             item.save(ignore_permissions=True)
-
-        seller_id = item_data.get("seller_id")
-        if seller_id in item_dict:
+        if item_data.get("seller_id") == 1579:
             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-            item_dict[seller_id]['items'].append({
-                "item_code": item.item_code,
-                "qty": item_data.get("quantity"),
-                "rate": item_data.get("cost"),
-            })
+            items_int.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 31029:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_alw.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 33329:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_lnc.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 21178:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_gm.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 22508:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            items_anker.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 31174:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            items_shik.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 28519:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_chicco.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 31217:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_un.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 18170:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_milion.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 29631:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_hakem.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 28114:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_ser.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 31146:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_nyx.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 26005:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_agar.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 24628:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_hn.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 28047:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_mid.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 29264:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_de.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 45159:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_gseb.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 46840:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_shafaq.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 46818:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_nasamat.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 47268:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_rinas.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 47323:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_rinasp.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 48097:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_mfcphilips.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 47554:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_alhashan.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 47975:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_alfaelectric.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 49755:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_danacosmetics.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 50304:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_weqayamedicals.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
+        if item_data.get("seller_id") == 50566:
+            item = frappe.get_doc("Item", {"sku": item_woo_com_id})
+            item_berlingerhaus.append(
+                {
+                    "item_code": item.item_code,
+                    "qty": item_data.get("quantity"),
+                    "rate": item_data.get("cost"),
+                }
+            )
 
-    for seller_id, supplier_info in item_dict.items():
-        if supplier_info['items']:
-            po = create_purchase_order(supplier_info['items'], supplier_info['supplier_name'], orderId)
+    if items_int is not None and items_int != []:
+        po = create_purchase_order(items_int, "baahy international", orderId)
+    if item_laa is not None and item_laa != []:
+        po = create_purchase_order(item_laa, "Matlaa Alfajir", orderId)
+    if item_alw is not None and item_alw != []:
+        po = create_purchase_order(item_alw, "alwatikon", orderId)
+    if item_lnc is not None and item_lnc != []:
+        po = create_purchase_order(item_lnc, "LNC", orderId)
+    # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")item_alw
+    #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice")
+    #  	if item_gm is not None and item_gm != []:
+    #  	    po = create_purchase_order(item_gm,'Game Arena', orderId)
+    #  	    transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+    #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice")
+    if items_anker is not None and items_anker != []:
+        po = create_purchase_order(items_anker, "Anker", orderId)
+    # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+    #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice")
+    if items_shik is not None and items_shik != []:
+        po = create_purchase_order(items_shik, "الشيخ", orderId)
+    # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+    #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice")
+    if item_chicco is not None and item_chicco != []:
+        po = create_purchase_order(item_chicco, "Chicco Libya", orderId)
+    # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+    #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice")
+    if item_un is not None and item_un != []:
+        po = create_purchase_order(item_un, "United Electronics", orderId)
+    # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+    #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Million mobile
+    if item_milion is not None and item_milion != []:
+        po = create_purchase_order(item_milion, "Million mobile", orderId)
+    # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+    #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
+    if item_hakem is not None and item_hakem != []:
+        po = create_purchase_order(item_hakem, "Al Hakeem", orderId)
+    # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+    #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
+    if item_ser is not None and item_ser != []:
+        po = create_purchase_order(item_ser, "Severin", orderId)
+    # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+    #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
+    if item_nyx is not None and item_nyx != []:
+        po = create_purchase_order(item_nyx, "NYX Libya", orderId)
+    # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+    #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
+    if item_agar is not None and item_agar != []:
+        po = create_purchase_order(item_agar, "Agar", orderId)
+    # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+    #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
+    if item_hn is not None and item_hn != []:
+        po = create_purchase_order(item_hn, "Hisense Libya", orderId)
+    # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+    #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
+    if item_mid is not None and item_mid != []:
+        po = create_purchase_order(item_mid, "Midea baahy", orderId)
+    # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+    #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
+    if item_de is not None and item_de != []:
+        po = create_purchase_order(item_de, "Decakila Libya", orderId)
+    # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+    #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
+    if item_gseb is not None and item_gseb != []:
+        po = create_purchase_order(item_gseb, "GSEB", orderId)
+    if item_shafaq is not None and item_shafaq != []:
+        po = create_purchase_order(item_shafaq, "Alshafaq Alahmer", orderId)
+    if item_nasamat is not None and item_nasamat != []:
+        po = create_purchase_order(item_nasamat, "Nasamat", orderId)
+    if item_rinas is not None and item_rinas != []:
+        po = create_purchase_order(item_rinas, "Rinas", orderId)
+    if item_rinasp is not None and item_rinasp != []:
+        po = create_purchase_order(item_rinasp, "Rinas Perfumes", orderId)
+    if item_alhashan is not None and item_alhashan != []:
+        po = create_purchase_order(item_alhashan, "Alhashan", orderId)
+    if item_mfcphilips is not None and item_mfcphilips != []:
+        po = create_purchase_order(item_mfcphilips, "MFC Philips", orderId)
+    if item_alfaelectric is not None and item_alfaelectric != []:
+        po = create_purchase_order(item_alfaelectric, "Alfa Electric", orderId)
+    if item_danacosmetics is not None and item_danacosmetics != []:
+        po = create_purchase_order(item_danacosmetics, "Dana Cosmetics", orderId)
+    if item_weqayamedicals is not None and item_weqayamedicals != []:
+        po = create_purchase_order(item_weqayamedicals, "Weqaya Medicals", orderId)
+    if item_berlingerhaus is not None and item_berlingerhaus != []:
+        po = create_purchase_order(item_berlingerhaus, "Berlinger Haus", orderId)
 
 
-# @frappe.whitelist(allow_guest=True)
-# def link_items_int(items_list, woocommerce_settings, sys_lang, orderId):
-#     (
-#         items_int,
-#         items_anker,
-#         items_shik,
-#         item_chicco,
-#         item_un,
-#         item_milion,
-#         item_hakem,
-#         item_nyx,
-#         item_ser,
-#         item_agar,
-#         item_hn,
-#         item_mid,
-#         item_de,
-#         item_gm,
-#         item_lnc,
-#         item_alw,
-#         item_laa,
-#         item_gseb,
-#     ) = [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
-#     for item_data in items_list:
-#         item_woo_com_id = item_data.get("sku").replace("'", "")
-#         if not frappe.db.exists("Item", {"sku": item_woo_com_id}):
-#             # and ( item_data.get("seller_id") == 33329 or item_data.get("seller_id") == 29264 or item_data.get("seller_id") == 24628 or item_data.get("seller_id") == 26005 or item_data.get("seller_id") == 31146 or item_data.get("seller_id") == 28114 or item_data.get("seller_id") == 29631 or item_data.get("seller_id") == 31174 or item_data.get("seller_id") == 28519 or item_data.get("seller_id") == 31217 or item_data.get("seller_id") == 1579 or item_data.get("seller_id") == 22508) or item_data.get("seller_id") == 45159):
-#             # Create Item -by rawan item_data.get("seller_id") == 28047 or 2117821178 33329 30977
-#             item = frappe.new_doc("Item")
-#             # item.cost_center=cost.name
-#             item.sku = item_woo_com_id
-#             item.item_code = item_woo_com_id
-#             item.stock_uom = woocommerce_settings.uom or _("Nos", sys_lang)
-#             item.regular_price = item_data.get("subtotal")
-#             lisw = woo_cat(item_data.get("categories"), item)
-#             item.item_group = lisw
-#             data = item_data.get("name")
-#             info = (data[:75] + "..") if len(data) > 75 else data
-#             item.item_name = info
-#             item.woocommerce_id = item_woo_com_id
-#             if frappe.db.exists("Supplier", {"id_woo": item_data.get("seller_id")}):
-#                 supplier = frappe.get_doc(
-#                     "Supplier", {"id_woo": item_data.get("seller_id")}
-#                 )
-#                 item.supplier_woo = supplier.name
-#             if frappe.db.exists(
-#                 "Cost Center", {"woocommerce_id": item_data.get("seller_id")}
-#             ):
-#                 cost = frappe.get_doc(
-#                     "Cost Center", {"woocommerce_id": item_data.get("seller_id")}
-#                 )
-#                 item.cost_center = cost.name
-#             item.flags.ignore_mandatory = True
-#             item.save(ignore_permissions=True)
-#         if item_data.get("seller_id") == 1579:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             items_int.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 31029:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             item_alw.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 33329:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             item_lnc.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 21178:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             item_gm.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 22508:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             items_anker.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 31174:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             items_shik.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 28519:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             item_chicco.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 31217:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             item_un.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 18170:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             item_milion.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 29631:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             item_hakem.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 28114:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             item_ser.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 31146:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             item_nyx.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 26005:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             item_agar.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 24628:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             item_hn.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 28047:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             item_mid.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 29264:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             item_de.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-#         if item_data.get("seller_id") == 45159:
-#             item = frappe.get_doc("Item", {"sku": item_woo_com_id})
-#             item_gseb.append(
-#                 {
-#                     "item_code": item.item_code,
-#                     "qty": item_data.get("quantity"),
-#                     "rate": item_data.get("cost"),
-#                 }
-#             )
-
-#     if items_int is not None and items_int != []:
-#         po = create_purchase_order(items_int, "baahy international", orderId)
-#     if item_laa is not None and item_laa != []:
-#         po = create_purchase_order(item_laa, "Matlaa Alfajir", orderId)
-#     if item_alw is not None and item_alw != []:
-#         po = create_purchase_order(item_alw, "alwatikon", orderId)
-#     if item_lnc is not None and item_lnc != []:
-#         po = create_purchase_order(item_lnc, "LNC", orderId)
-#     # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")item_alw
-#     #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice")
-#     #  	if item_gm is not None and item_gm != []:
-#     #  	    po = create_purchase_order(item_gm,'Game Arena', orderId)
-#     #  	    transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
-#     #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice")
-#     if items_anker is not None and items_anker != []:
-#         po = create_purchase_order(items_anker, "Anker", orderId)
-#     # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
-#     #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice")
-#     if items_shik is not None and items_shik != []:
-#         po = create_purchase_order(items_shik, "الشيخ", orderId)
-#     # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
-#     #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice")
-#     if item_chicco is not None and item_chicco != []:
-#         po = create_purchase_order(item_chicco, "Chicco Libya", orderId)
-#     # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
-#     #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice")
-#     if item_un is not None and item_un != []:
-#         po = create_purchase_order(item_un, "United Electronics", orderId)
-#     # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
-#     #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Million mobile
-#     if item_milion is not None and item_milion != []:
-#         po = create_purchase_order(item_milion, "Million mobile", orderId)
-#     # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
-#     #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
-#     if item_hakem is not None and item_hakem != []:
-#         po = create_purchase_order(item_hakem, "Al Hakeem", orderId)
-#     # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
-#     #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
-#     if item_ser is not None and item_ser != []:
-#         po = create_purchase_order(item_ser, "Severin", orderId)
-#     # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
-#     #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
-#     if item_nyx is not None and item_nyx != []:
-#         po = create_purchase_order(item_nyx, "NYX Libya", orderId)
-#     # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
-#     #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
-#     if item_agar is not None and item_agar != []:
-#         po = create_purchase_order(item_agar, "Agar", orderId)
-#     # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
-#     #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
-#     if item_hn is not None and item_hn != []:
-#         po = create_purchase_order(item_hn, "Hisense Libya", orderId)
-#     # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
-#     #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
-#     if item_mid is not None and item_mid != []:
-#         po = create_purchase_order(item_mid, "Midea baahy", orderId)
-#     # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
-#     #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
-#     if item_de is not None and item_de != []:
-#         po = create_purchase_order(item_de, "Decakila Libya", orderId)
-#     # transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
-#     #    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
-#     if item_gseb is not None and item_gseb != []:
-#         po = create_purchase_order(item_gseb, "GSEB", orderId)
-
-
+# transaction_processing([{"name": po.name}],  "Purchase Order", "Purchase Receipt")
+#    transaction_processing([{"name": po.name}], "Purchase Order", "Purchase Invoice") Al Hakeem
 @frappe.whitelist()
 def woo_cat_old(link, product):
     if link is not None and link != "":
@@ -1434,7 +1536,7 @@ def change_status(checked_items, status):
                     payment_entry.submit()
                     frappe.db.commit()
                     counter = counter + 1
-                    url = "https://baahy.com/wp-json/api/gibran_user/erp_sync_status"
+                    url = "https://wordpress-1204933-4913305.cloudwaysapps.com/wp-json/api/gibran_user/erp_sync_status"
                     status = "delivered"
 
                     if frappe.db.exists(
@@ -1476,7 +1578,7 @@ def change_status(checked_items, status):
             if (statusOrder == "confirmed" and status == "item_out_of_stock") or (
                 statusOrder == "confirmed" and status == "fulfilled_order"
             ):
-                url = "https://baahy.com/wp-json/api/gibran_user/erp_sync_status"
+                url = "https://wordpress-1204933-4913305.cloudwaysapps.com/wp-json/api/gibran_user/erp_sync_status"
                 myObj = {
                     "id": woocommerce_id,
                     "status": status,
@@ -1522,12 +1624,12 @@ def change_status(checked_items, status):
                     )
                     purchase_order.cancel()
                     frappe.db.commit()
-                url = "https://baahy.com/wp-json/api/gibran_user/erp_sync_status"
+                url = "https://wordpress-1204933-4913305.cloudwaysapps.com/wp-json/api/gibran_user/erp_sync_status"
                 json_data = requests.post(
                     url, json=myObj, headers={"Content-Type": "application/json"}
                 )
             elif statusOrder == "delivered" and status == "completed":
-                url = "https://baahy.com/wp-json/api/gibran_user/erp_sync_status"
+                url = "https://wordpress-1204933-4913305.cloudwaysapps.com/wp-json/api/gibran_user/erp_sync_status"
                 myObj = {
                     "id": woocommerce_id,
                     "status": status,
@@ -1578,7 +1680,7 @@ def after_sync(order_id, order_status, page=""):
     if frappe.db.exists("Purchase Invoice", {"s_code": order_id}):
         sync_order_status_pi(order_id)
 
-    url = "https://baahy.com/wp-json/api/gibran_user/erpnext_sync_done"
+    url = "https://wordpress-1204933-4913305.cloudwaysapps.com/wp-json/api/gibran_user/erpnext_sync_done"
     body = {
         "order_id": order_id,
     }
@@ -2236,7 +2338,7 @@ def updateErrors():
         if frappe.db.exists("Sales Order", {"woocommerce_id": id, "docstatus": 1}):
             myObj = {"id": id}
             json_data = requests.post(
-                "https://baahy.com/wp-json/api/gibran_user/erpnext_sync_error",
+                "https://wordpress-1204933-4913305.cloudwaysapps.com/wp-json/api/gibran_user/erpnext_sync_error",
                 json=myObj,
                 headers={"Content-Type": "application/json"},
             )
